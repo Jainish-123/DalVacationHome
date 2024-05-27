@@ -40,6 +40,10 @@ _Potential Uses:_
 
 **AWS SNS & SQS:** The notification module utilizes AWS Simple Notification Service (SNS) and Simple Queue Service (SQS) to handle notifications. _Email Notifications:_ Notifications for successful registration, login, booking confirmation, and booking failure are sent to the user’s email. _Queue Mechanism:_ Booking requests are placed in a standard SQS queue, which activates an AWS Lambda function to process the approval task. This system ensures that users are kept informed about important events within the application, such as registration and booking statuses. The use of AWS services like SNS, SQS, and Lambda facilitates a scalable and efficient notification mechanism.
 
+**Architecture Diagram**
+
+![aws.drawio (2).png](/uploads/9d0bfcba8eac4574db45d285162ada3d/aws.drawio__2_.png)
+
 **References:**
 
 \[1\] Getting started with Amazon SNS - Amazon Simple Notification Service, https://docs.aws.amazon.com/sns/latest/dg/sns-getting-started.html (accessed May 24, 2024).
