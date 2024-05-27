@@ -24,13 +24,22 @@ Hotel booking website was developed on serverless architecture. The key features
 
 ![](https://lh7-us.googleusercontent.com/WSnJz4KCAfkCacFa887-eXlOrkmZt_7OBHU6Sq9ZyM9i2XbWwBexF3PAOCYyyEUTjNUdOB_0r0kGwh_5xnpv9q93lfEJVRBZ26WsGQ6en9orwlxCF3u7QS7gseVFhgghfL5YWmMRptiqZV_Dn7IViog){width="624" height="341"}
 
-References 
+**References **
+
 [1] “What is Amazon Lex V2?,” Amazon Lex. https://docs.aws.amazon.com/lexv2/latest/dg/what-is.html (accessed May 20, 2024).    
+
 [2] “Serverless Function, FaaS Serverless  - AWS Lambda - AWS,” Amazon Web Services, Inc. https://aws.amazon.com/lambda/ (accessed May 20, 2024).    
+
 [3] “Fast NoSQL Key-Value Database – Amazon DynamoDB – Amazon Web Services,” Amazon Web Services, Inc. https://aws.amazon.com/dynamodb/ (accessed May 20, 2024).    
+
 [4] “Enabling custom logic with AWS Lambda functions,” Amazon Lex. https://docs.aws.amazon.com/lexv2/latest/dg/lambda.html (accessed May 20, 2024).    
+
 [5] M. Gaikwad, “How to use Lambda DynamoDB: A Complete Guide,” Hevo Data, Apr. 19, 2022. Accessed: May 20, 2024. [Online]. Available: https://hevodata.com/learn/lambda-dynamodb/    
+
 [6] V. Kulkarni, “A Research Paper on Serverless Computing,” International Journal of Engineering Research & Technology, vol. 11, no. 9, Dec. 2022, doi: 10.17577/IJERTV11IS090064.    
+
 [7] J. Saji and A. Kumar, “A Review Paper on Serverless Architecture of Web Applications.” https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4495958 (accessed May 21, 2024).    
+
 [8] H. Do, “A year of running a hotel booking application on AWS Serverless services for $0.8/month,” Hieu’s Technical Blog, Oct. 29, 2023. Accessed: May 21, 2024. [Online]. Available: https://hieudd.substack.com/p/a-year-of-running-a-hotel-booking
+
 [9] J. Obey, “Best practices for building serverless applications that follow AWS’s Well-Architected Framework,” Datadog, Jan. 24, 2022. https://www.datadoghq.com/blog/well-architected-serverless-applications-best-practices/ (accessed May 21, 2024).    
