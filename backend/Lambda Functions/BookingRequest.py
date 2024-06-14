@@ -11,11 +11,13 @@ def lambda_handler(event, context):
         if 'body' not in event:
             raise ValueError("Missing 'body' in the event")
         booking_details = json.loads(event['body'])
-        required_fields = ['booking_id', 'email', 'details']
+        
+        required_fields = ['booking_id', 'email', 'details', 'room_id']
         for field in required_fields:
             if field not in booking_details:
                 raise ValueError(f"Missing required field: {field}")
-        message_group_id = "bookingRequestGroup"
+
+        message_group_id = booking_details['room_id']
         message_deduplication_id = hashlib.md5(json.dumps(booking_details).encode('utf-8')).hexdigest()
 
         response = sqs.send_message(
