@@ -1,0 +1,179 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Resources:
+  BookingQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: BookingQueue.fifo
+      FifoQueue: true
+      ContentBasedDeduplication: true
+
+  BookingNotificationsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: BookingNotifications
+
+  BookingRequestLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: BookingRequestLambdaFunction
+      Handler: index.lambda_handler
+      Role: labrole
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+          import os
+          import hashlib
+
+          sqs = boto3.client('sqs')
+          QUEUE_URL = os.environ['QUEUE_URL']
+
+          def lambda_handler(event, context):
+              try:
+                  if 'body' not in event:
+                      raise ValueError("Missing 'body' in the event")
+
+                  booking_details = json.loads(event['body'])
+                  
+                  required_fields = ['booking_id', 'email', 'details', 'room_id']
+                  for field in required_fields:
+                      if field not in booking_details:
+                          raise ValueError(f"Missing required field: {field}")
+
+                  message_group_id = booking_details['room_id']
+                  message_deduplication_id = hashlib.md5(json.dumps(booking_details).encode('utf-8')).hexdigest()
+
+                  response = sqs.send_message(
+                      QueueUrl=QUEUE_URL,
+                      MessageBody=json.dumps(booking_details),
+                      MessageGroupId=message_group_id,
+                      MessageDeduplicationId=message_deduplication_id
+                  )
+                  
+                  return {
+                      'statusCode': 200,
+                      'body': json.dumps({
+                          'message': 'Booking details added to the queue',
+                          'messageId': response['MessageId']
+                      })
+                  }
+
+              except ValueError as ve:
+                  return {
+                      'statusCode': 400,
+                      'body': json.dumps({
+                          'error': str(ve)
+                      })
+                  }
+              
+              except Exception as e:
+                  return {
+                      'statusCode': 500,
+                      'body': json.dumps({
+                          'error': 'An error occurred',
+                          'details': str(e)
+                      })
+                  }
+      Runtime: python3.8
+      Environment:
+        Variables:
+          QUEUE_URL: !Ref BookingQueue
+
+  BookingValidationLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: BookingValidation
+      Handler: index.lambda_handler
+      Role: labrole
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+          import os
+
+          sns = boto3.client('sns')
+          QUEUE_URL = os.environ['QUEUE_URL']
+          SNS_TOPIC_ARN = os.environ['SNS_TOPIC_ARN']
+
+          def check_room_availability(room_id, check_in, check_out):
+              return True
+
+          def lambda_handler(event, context):
+              for record in event['Records']:
+                  try:
+                      booking_details = json.loads(record['body'])
+                      
+                      room_id = booking_details['room_id']
+                      check_in = booking_details['details']['check_in']
+                      check_out = booking_details['details']['check_out']
+                      
+                      is_available = check_room_availability(room_id, check_in, check_out)
+                      
+                      if is_available:
+                          message = 'Your booking is confirmed!'
+                          status = 'confirmed'
+                      else:
+                          message = 'Your booking is rejected due to unavailability.'
+                          status = 'rejected'
+                      
+                      sns.publish(
+                          TopicArn=SNS_TOPIC_ARN,
+                          Message=json.dumps({
+                              'default': json.dumps({
+                                  'booking_id': booking_details['booking_id'],
+                                  'message': message,
+                                  'status': status,
+                                  'email': booking_details['email']
+                              })
+                          }),
+                          MessageStructure='json'
+                      )
+                      
+                  except Exception as e:
+                      print(f"Error processing booking: {str(e)}")
+              
+              return {
+                  'statusCode': 200,
+                  'body': json.dumps('Processed booking messages.')
+              }
+      Runtime: python3.8
+      Environment:
+        Variables:
+          QUEUE_URL: !Ref BookingQueue
+          SNS_TOPIC_ARN: !Ref BookingNotificationsTopic
+      Events:
+        BookingQueueEvent:
+          Type: SQS
+          Properties:
+            Queue: !Ref BookingQueue
+
+  BookingValidationLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref BookingValidationLambdaFunction
+      Principal: sqs.amazonaws.com
+      SourceArn: !GetAtt BookingQueue.Arn
+
+  BookingRequestLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref BookingRequestLambdaFunction
+      Principal: sqs.amazonaws.com
+      SourceArn: !GetAtt BookingQueue.Arn
+
+Outputs:
+  BookingQueueUrl:
+    Description: URL of the Booking SQS Queue
+    Value: !Ref BookingQueue
+  BookingRequestLambdaFunction:
+    Description: ARN of the Booking Request Lambda Function
+    Value: !GetAtt BookingRequestLambdaFunction.Arn
+  BookingValidationLambdaFunction:
+    Description: ARN of the Check Availability Lambda Function
+    Value: !GetAtt BookingValidationLambdaFunction.Arn
+  BookingNotificationsTopic:
+    Description: ARN of the Booking Notifications SNS Topic
+    Value: !Ref BookingNotificationsTopic
