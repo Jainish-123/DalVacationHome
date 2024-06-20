@@ -1,4 +1,4 @@
-import { Route, HashRouter as Router, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
 import { Home } from "./pages/Home";
 import { Agent } from "./pages/agent/Agent";
@@ -17,7 +17,8 @@ function App() {
           <Route path="/booking" Component={Booking}></Route>
           <Route path="*" Component={P404}></Route>
         </Routes>
-      </Router>
+      </BrowserRouter>
+
     </div>
   );
 }
