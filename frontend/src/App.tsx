@@ -1,4 +1,4 @@
-import { HashRouter as Router, Route, Routes } from "react-router-dom";
+import { HashRouter as Router, Route, Routes, BrowserRouter } from "react-router-dom";
 import "./App.css";
 import { Home } from "./pages/Home";
 import { Agent } from "./pages/agent/Agent";
@@ -11,7 +11,7 @@ import "bootstrap/dist/js/bootstrap.bundle.min";
 function App() {
   return (
     <div className="App">
-      <Router>
+      <BrowserRouter>
         <Routes>
           <Route path="/" Component={Home}></Route>
           <Route path="/agent" Component={Agent}></Route>
@@ -19,7 +19,7 @@ function App() {
           <Route path="/room-list" Component={RoomList}></Route>
           <Route path="*" Component={P404}></Route>
         </Routes>
-      </Router>
+      </BrowserRouter>
     </div>
   );
 }
