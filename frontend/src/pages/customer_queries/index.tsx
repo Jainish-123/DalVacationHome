@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  CustomerQuery,
-  getCustomerQueries,
-} from "../../api/getCustomerQueries";
+import { CustomerQuery, getCustomerQueries } from "../../api/queriesApi";
 
 export const CustomerQueries = () => {
   const [customerQueries, setCustomerQueries] = useState<Array<CustomerQuery>>(
@@ -11,7 +8,7 @@ export const CustomerQueries = () => {
 
   useEffect(() => {
     const _init = async () => {
-      setCustomerQueries((await getCustomerQueries()).data);
+      setCustomerQueries((await getCustomerQueries("123")).data);
     };
     _init();
   }, []);

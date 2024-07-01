@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { AgentQuery, getAgentQueries } from "../../api/getAgentQueries";
+import { AgentQuery, getAgentQueries } from "../../api/queriesApi";
 
 export const AgentQueries = () => {
   const [agentQueries, setAgentQueries] = useState<Array<AgentQuery>>([]);
 
   useEffect(() => {
     const _init = async () => {
-      setAgentQueries((await getAgentQueries()).data);
+      setAgentQueries((await getAgentQueries("123")).data);
     };
     _init();
   }, []);
