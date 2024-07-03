@@ -7,18 +7,31 @@ import { Booking } from "./pages/booking/Booking";
 import { RoomList } from "./pages/RoomList";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
+import Login from "./pages/authentication/Login";
+import SignUp from "./pages/authentication/SignUp";
+import VerifyEmail from "./pages/authentication/Verify";
+import SecurityQuestions from "./pages/authentication/Secques";
+import { Auth } from "./context/Auth";
+import LoginVerify from "./pages/authentication/LoginVerify";
 
 function App() {
   return (
     <div className="App">
       <Router>
+        <Auth>
         <Routes>
           <Route path="/" Component={Home}></Route>
           <Route path="/agent" Component={Agent}></Route>
           <Route path="/booking" Component={Booking}></Route>
           <Route path="/room-list" Component={RoomList}></Route>
+          <Route path="/login" Component={Login}></Route>
+          <Route path="/signup" Component={SignUp}></Route>
+          <Route path="/verify" Component={VerifyEmail}></Route>
+          <Route path="/sec-ques" Component={SecurityQuestions}></Route> 
+          <Route path="/login-verify" Component={LoginVerify}></Route>
           <Route path="*" Component={P404}></Route>
         </Routes>
+        </Auth>
       </Router>
     </div>
   );
