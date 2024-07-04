@@ -14,13 +14,20 @@ import SecurityQuestions from "./pages/authentication/Secques";
 import { Auth } from "./context/Auth";
 import LoginVerify from "./pages/authentication/LoginVerify";
 import ProtectedRoute from "./utils/ProtectedRoutes";
+import ForgotPassword from "./pages/authentication/ForgetPassword";
+import UserProfile from "./pages/authentication/UserProfile";
+import AppNavbar from "./components/Navbar";
+import { useEffect } from "react";
+import { useAuth } from "./context/Auth";
 
 function App() {
+  const {getSession, setStatus, status} = useAuth();
+  
   return (
-    <div className="App">
-      {/* <Status /> */}
+    <div className="App"> 
       <Router>
-        <Auth>
+        <AppNavbar/>
+       
         <Routes>
           <Route path="/" Component={Home}></Route>
           <Route path="/agent" Component={Agent}></Route>
@@ -31,12 +38,14 @@ function App() {
           <Route path="/verify" Component={VerifyEmail}></Route>
           <Route path="/sec-ques" Component={SecurityQuestions}></Route> 
           <Route path="/login-verify" Component={LoginVerify}></Route>
+          <Route path='/forgotpass' Component={ForgotPassword}></Route>
+          <Route path='/userprofile' element={<ProtectedRoute><UserProfile/></ProtectedRoute>}></Route>
           <Route path="*" Component={P404}></Route>
         </Routes>
-        </Auth>
       </Router>
     </div>
   );
 }
 
 export default App;
+

@@ -71,9 +71,9 @@ export const Login = () => {
                   </Form.Group>
                   <div className="mb-3">
                     <p className="small">
-                      <a className="text-primary" href="#!">
+                      <Link to='/forgotpass' className="text-primary" >
                         Forgot password?
-                      </a>
+                      </Link>
                     </p>
                   </div>
                   <div className="d-grid">

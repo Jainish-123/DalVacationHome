@@ -1,4 +1,4 @@
-import React, { createContext, ReactNode, useState, useContext } from "react";
+import React, { createContext, ReactNode, useState, useContext, useEffect } from "react";
 import {
   CognitoUser,
   AuthenticationDetails,
@@ -17,6 +17,9 @@ export interface AccountContextType {
     newPassword: string
   ) => Promise<void>;
   status: boolean;
+  setStatus: React.Dispatch<React.SetStateAction<boolean>>;  
+  role: string;
+  setRole: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const AuthContext = createContext<AccountContextType>({
@@ -26,9 +29,13 @@ const AuthContext = createContext<AccountContextType>({
   forgotPassword: async () => { throw new Error('forgotPassword not implemented'); },
   confirmPassword: async () => { throw new Error('confirmPassword not implemented'); },
   status: false,
+  setStatus: () => { throw new Error('setStatus not implemented')},
+  role: "",
+  setRole: () => { throw new Error('setRole not implemented'); },
 });
 
 const Auth: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [role, setRole] = useState<string>("");
   const [status, setStatus] = useState<boolean>(false);
 
   const authenticate = async (email: string, password: string) => {
@@ -47,6 +54,7 @@ const Auth: React.FC<{ children: ReactNode }> = ({ children }) => {
         onSuccess: (data) => {
           console.log("onSuccess:", data);
           setStatus(true);
+          setRole("user"); // Assuming role is set here, adjust according to your logic
           resolve();
         },
         onFailure: (err) => {
@@ -71,6 +79,8 @@ const Auth: React.FC<{ children: ReactNode }> = ({ children }) => {
             reject(err);
           } else {
             setStatus(true);
+            const role = session.getIdToken().payload['cognito:groups']?.[0] || "user";
+            setRole(role);
             resolve(session);
           }
         });
@@ -142,6 +152,9 @@ const Auth: React.FC<{ children: ReactNode }> = ({ children }) => {
         forgotPassword,
         confirmPassword,
         status,
+        setStatus,
+        role,
+        setRole,
       }}
     > 
       {children}
@@ -151,6 +164,16 @@ const Auth: React.FC<{ children: ReactNode }> = ({ children }) => {
 
 const useAuth = (): AccountContextType => {
   const context = useContext(AuthContext);
+  useEffect(() => {
+    context.getSession().then(() => {
+      context.setStatus(true);
+    }).catch((err) => {
+      console.error(err);
+      context.setStatus(false);
+    });
+  }
+  , [context
+  ]);
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }

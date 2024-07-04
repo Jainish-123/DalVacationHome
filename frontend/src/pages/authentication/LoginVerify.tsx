@@ -1,20 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import { useLocation } from 'react-router-dom';
 import { getUser } from '../../api/auth/getUser';
 import { getOneQuestion } from '../../api/auth/getOnequestion';
 import { checkAnswer } from '../../api/auth/checkAnswer';
+import { AuthContext } from '../../context/Auth';
+import { User } from '../../api/auth/postUser';
+import { useNavigate } from 'react-router-dom';
 
 
 const LoginVerify: React.FC = () => {
+    const {setRole, setStatus} = useContext(AuthContext);
     const [question, setQuestion] = useState('');
     const [randomString, setRandomString] = useState('');
+    const [userDetails, setUserDetails] = useState<string>('');
     const [answer, setAnswer] = useState('');
     const [decipher, setDecipher] = useState('');
     const location = useLocation();
     const [queId, setQueId] = useState<number[]>([]);
     const [id, setId] = useState<number>(0);
     const email = location.state?.email || '';
+    const navigate = useNavigate();
 
     useEffect(() => {
         getUserDetails();
@@ -23,6 +29,8 @@ const LoginVerify: React.FC = () => {
     const getUserDetails = async () => { 
         try {
             const response = await getUser(email);
+            const role = response.data.role;
+            setUserDetails(role);
             setQueId(response.data.queId);
             const randomId = response.data.queId[Math.floor(Math.random() * response.data.queId.length)];
             setId(randomId);
@@ -70,6 +78,10 @@ const LoginVerify: React.FC = () => {
         }) as { data: { statusCode: number } };
         if (response.data.statusCode === 200) {
             console.log('Login successful');
+            setRole(userDetails);
+            setStatus(true);
+            console.log(userDetails);
+            navigate('/#/room-list')
         }
         else 
         {
