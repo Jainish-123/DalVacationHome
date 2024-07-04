@@ -10,6 +10,7 @@ import "bootstrap/dist/js/bootstrap.bundle.min";
 import { CustomerQueries } from "./pages/customer_queries";
 import { AgentQueries } from "./pages/agent_queries";
 import { Messaging } from "./pages/messaging";
+import { PostQuery } from "./pages/post_query";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path='/booking' Component={Booking}></Route>
           <Route path='/customer-queries' Component={CustomerQueries} />
           <Route path='/messaging' Component={Messaging} />
+          <Route path='/post-query' Component={PostQuery} />
           <Route path='/agent-queries' Component={AgentQueries} />
           <Route path='/room-list' Component={RoomList}></Route>
           <Route path='*' Component={P404}></Route>

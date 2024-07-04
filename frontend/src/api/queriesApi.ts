@@ -1,4 +1,4 @@
-import { getRequest } from "./axios";
+import { getRequest, postRequest } from "./axios";
 
 export interface CustomerQuery {
   id: number;
@@ -17,7 +17,7 @@ export interface AgentQuery {
 }
 
 const QUERIES_ENDPOINT =
-  "https://fbasvvm6og.execute-api.us-east-1.amazonaws.com/";
+  "https://y83o35anx0.execute-api.us-east-1.amazonaws.com/";
 
 export const getAgentQueries = (agentId: string) => {
   return getRequest<Array<AgentQuery>>(
@@ -28,5 +28,16 @@ export const getAgentQueries = (agentId: string) => {
 export const getCustomerQueries = (customerId: string) => {
   return getRequest<Array<CustomerQuery>>(
     QUERIES_ENDPOINT + "customer-queries/" + customerId
+  );
+};
+
+export const postMessage = (message: string) => {
+  return postRequest<any>(
+    "https://us-central1-serverless-426912.cloudfunctions.net/post-customer-query",
+    {
+      customerId: "123",
+      bookingId: "123",
+      message: message,
+    }
   );
 };
