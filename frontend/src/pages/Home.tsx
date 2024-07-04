@@ -1,23 +1,12 @@
-import { useEffect, useState } from "react";
-import { Room, getRooms } from "../api/home/getRooms";
+import { Link } from "react-router-dom";
 
 export const Home = () => {
-  const [rooms, setRooms] = useState<Array<Room>>([]);
-  useEffect(() => {
-    getRooms()
-      .then((val) => {
-        setRooms(val.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, []);
-
   return (
-    <div>
-      {rooms.map((item, index) => (
-        <h1 key={index}>{item.title}</h1>
-      ))}
+    <div className='flex flex-col gap-2'>
+      <Link to={"post-query"}>Post Query</Link>
+      <Link to={"messaging/123/123"}>Messaging</Link>
+      <Link to={"customer-queries"}>Customer Queries</Link>
+      <Link to={"agent-queries"}>Agent Queries</Link>
     </div>
   );
 };
