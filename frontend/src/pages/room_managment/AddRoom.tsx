@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Form, Button } from "react-bootstrap";
+import axios from "axios";
 
 interface Room {
   id: number;
@@ -25,6 +26,33 @@ export const AddRoom = () => {
     guests: 0,
     baths: 0,
   });
+
+  const handleRequest = async (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(
+        "https://p2r4cn9vyj.execute-api.us-east-1.amazonaws.com/dev/room",
+        {
+          body: JSON.stringify({
+            email: "krishnavaibhav.y@gmail.com",
+            room_id: "103",
+          }),
+        },
+        {
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "*",
+            "Access-Control-Allow-Methods": "*",
+          },
+        }
+      );
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -132,7 +160,7 @@ export const AddRoom = () => {
           />
         </Form.Group>
 
-        <Button className="my-5" variant="primary" type="submit">
+        <Button className="my-5" variant="primary" onClick={handleRequest}>
           Add Room
         </Button>
       </Form>
