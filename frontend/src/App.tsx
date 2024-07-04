@@ -13,17 +13,19 @@ import VerifyEmail from "./pages/authentication/Verify";
 import SecurityQuestions from "./pages/authentication/Secques";
 import { Auth } from "./context/Auth";
 import LoginVerify from "./pages/authentication/LoginVerify";
+import ProtectedRoute from "./utils/ProtectedRoutes";
 
 function App() {
   return (
     <div className="App">
+      {/* <Status /> */}
       <Router>
         <Auth>
         <Routes>
           <Route path="/" Component={Home}></Route>
           <Route path="/agent" Component={Agent}></Route>
           <Route path="/booking" Component={Booking}></Route>
-          <Route path="/room-list" Component={RoomList}></Route>
+          <Route path="/room-list" element={<ProtectedRoute><RoomList/></ProtectedRoute>}></Route>
           <Route path="/login" Component={Login}></Route>
           <Route path="/signup" Component={SignUp}></Route>
           <Route path="/verify" Component={VerifyEmail}></Route>

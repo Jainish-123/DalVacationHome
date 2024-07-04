@@ -5,6 +5,7 @@ import { getUser } from '../../api/auth/getUser';
 import { getOneQuestion } from '../../api/auth/getOnequestion';
 import { checkAnswer } from '../../api/auth/checkAnswer';
 
+
 const LoginVerify: React.FC = () => {
     const [question, setQuestion] = useState('');
     const [randomString, setRandomString] = useState('');
@@ -31,10 +32,11 @@ const LoginVerify: React.FC = () => {
     };
 
     useEffect(() => {
+        
         if (id) {
             fetchQuestion(id);
         }
-        generateRandomString(5);  // Generate random string of desired length
+        generateRandomString(5); 
     }, [id]);
 
     const fetchQuestion = async (id: number) => {
