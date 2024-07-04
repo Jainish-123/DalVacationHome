@@ -21,7 +21,7 @@ function App() {
           <Route path='/agent' Component={Agent}></Route>
           <Route path='/booking' Component={Booking}></Route>
           <Route path='/customer-queries' Component={CustomerQueries} />
-          <Route path='/messaging' Component={Messaging} />
+          <Route path='/messaging/:customerId/:agentId' Component={Messaging} />
           <Route path='/post-query' Component={PostQuery} />
           <Route path='/agent-queries' Component={AgentQueries} />
           <Route path='/room-list' Component={RoomList}></Route>

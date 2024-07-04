@@ -1,32 +1,33 @@
 import { getRequest, postRequest } from "./axios";
 
-export interface CustomerQuery {
-  id: number;
+export interface Query {
+  id: string;
   description: string;
   date: string;
-  agent: string;
   agentId: string;
+  customerId: string;
+  bookingId: string;
 }
 
-export interface AgentQuery {
-  id: number;
-  description: string;
-  date: string;
-  customer: string;
-  customerId: string;
+export interface Message {
+  id?: string;
+  message: string;
+  date?: string;
+  agentId?: string;
+  customerId?: string;
 }
 
 const QUERIES_ENDPOINT =
   "https://y83o35anx0.execute-api.us-east-1.amazonaws.com/";
 
 export const getAgentQueries = (agentId: string) => {
-  return getRequest<Array<AgentQuery>>(
+  return getRequest<Array<Query>>(
     QUERIES_ENDPOINT + "agent-queries/" + agentId
   );
 };
 
 export const getCustomerQueries = (customerId: string) => {
-  return getRequest<Array<CustomerQuery>>(
+  return getRequest<Array<Query>>(
     QUERIES_ENDPOINT + "customer-queries/" + customerId
   );
 };
@@ -40,4 +41,14 @@ export const postMessage = (message: string) => {
       message: message,
     }
   );
+};
+
+export const getMessages = (customerId: string, agentId: string) => {
+  return getRequest<Array<Message>>(
+    QUERIES_ENDPOINT + "messages/" + customerId + "/" + agentId
+  );
+};
+
+export const createMessage = (message: Message) => {
+  return postRequest<any>(QUERIES_ENDPOINT + "create-message", message);
 };

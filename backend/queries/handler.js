@@ -5,15 +5,31 @@ const {
 } = require("@aws-sdk/client-dynamodb");
 
 const express = require("express");
+const cors = require("cors");
+
 const serverless = require("serverless-http");
 const uuid4 = require("uuid4");
 
 const app = express();
 
 const QUERIES_TABLE = process.env.QUERIES_TABLE;
+const MESSAGES_TABLE = process.env.MESSAGES_TABLE;
 const client = new DynamoDBClient();
 
 app.use(express.json());
+app.use(cors());
+
+const transformDynamoResponse = (items) => {
+  return items.map((item) => {
+    const normalObject = {};
+    for (const key in item) {
+      if (item.hasOwnProperty(key)) {
+        normalObject[key] = item[key][Object.keys(item[key])[0]];
+      }
+    }
+    return normalObject;
+  });
+};
 
 // Fetch queries by agentId
 app.get("/agent-queries/:agentId", async (req, res) => {
@@ -22,17 +38,13 @@ app.get("/agent-queries/:agentId", async (req, res) => {
     TableName: QUERIES_TABLE,
     FilterExpression: "agentId = :agentId",
     ExpressionAttributeValues: {
-      ":agentId": { s: agentId },
+      ":agentId": { S: agentId },
     },
   };
 
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Max-Age", "3600");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-
   try {
     const data = await client.send(new ScanCommand(params));
-    res.json(data.Items);
+    res.status(200).json(transformDynamoResponse(data?.Items || []));
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Could not fetch agent queries" });
@@ -50,13 +62,9 @@ app.get("/customer-queries/:customerId", async (req, res) => {
     },
   };
 
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Max-Age", "3600");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-
   try {
     const data = await client.send(new ScanCommand(params));
-    res.status(200).json(data.Items);
+    res.status(200).json(transformDynamoResponse(data?.Items || []));
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -70,9 +78,6 @@ app.post("/handle-customer-query", async (req, res) => {
   const buffer = req.body;
   const jsonString = Buffer.from(buffer, "base64").toString("utf8");
   const body = JSON.parse(jsonString);
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Max-Age", "3600");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   //TODO randomly select agent and assign
   const params = {
@@ -80,15 +85,61 @@ app.post("/handle-customer-query", async (req, res) => {
     Item: {
       id: { S: uuid4() },
       customerId: { S: body.customerId },
-      agentId: { S: "123" }, // Assuming agentId is static for now
-      bookingId: { S: body.bookingId }, // Corrected to 'S'
-      description: { S: body.message }, // Corrected to 'S'
-      date: { S: new Date().toISOString() }, // Use ISO string for date
+      agentId: { S: "123" },
+      bookingId: { S: body.bookingId },
+      description: { S: body.message },
+      date: { S: new Date().toISOString() },
     },
   };
   try {
     await client.send(new PutItemCommand(params));
     res.status(200).json({ message: "Successfully inserted customer query" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Could not fetch customer queries" });
+  }
+});
+
+// Fetch queries by customerId
+app.get("/messages/:customerId/:agentId", async (req, res) => {
+  const customerId = req.params.customerId;
+  const agentId = req.params.agentId;
+  const params = {
+    TableName: MESSAGES_TABLE,
+    FilterExpression: "customerId = :customerId AND agentId = :agentId",
+    ExpressionAttributeValues: {
+      ":customerId": { S: customerId },
+      ":agentId": { S: agentId },
+    },
+  };
+
+  try {
+    const data = await client.send(new ScanCommand(params));
+    res.status(200).json(transformDynamoResponse(data?.Items || []));
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      statusCode: 500,
+      body: JSON.stringify({ message: "Internal Server Error" }),
+    });
+  }
+});
+
+app.post("/create-message", async (req, res) => {
+  const body = req.body;
+  const params = {
+    TableName: MESSAGES_TABLE,
+    Item: {
+      id: { S: uuid4() },
+      customerId: { S: body.customerId },
+      agentId: { S: body.agentId },
+      message: { S: body.message },
+      date: { S: new Date().toISOString() },
+    },
+  };
+  try {
+    await client.send(new PutItemCommand(params));
+    res.status(200).json({ message: "Successfully inserted message" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Could not fetch customer queries" });

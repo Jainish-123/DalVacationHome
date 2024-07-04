@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Message, getMessages } from "../../api/getMessages";
+import { createMessage, getMessages, Message } from "../../api/queriesApi";
 
 export const Messaging = () => {
   const params = useParams();
@@ -9,9 +9,12 @@ export const Messaging = () => {
   const [newMessage, setNewMessage] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
+  const userId = "123";
   useEffect(() => {
     const _init = async () => {
-      setMessages(getMessages(params.customerId || "", params.agentId || ""));
+      setMessages(
+        (await getMessages(params.customerId || "", params.agentId || "")).data
+      );
     };
 
     if (params) {
@@ -26,13 +29,11 @@ export const Messaging = () => {
   const handleSend = () => {
     if (newMessage.trim()) {
       const newMsg: Message = {
-        id: (messages.length + 1).toString(),
         message: newMessage,
-        date: new Date().toISOString(),
-        agent: "Agent", // Or the name of the current agent
-        customer: "Customer", // Or the name of the current customer
-        owner: true,
+        agentId: params.agentId,
+        customerId: params.customerId,
       };
+      createMessage(newMsg);
       setMessages([...messages, newMsg]);
       setNewMessage("");
       scrollToBottom();
@@ -52,12 +53,14 @@ export const Messaging = () => {
               <div
                 key={msg.id}
                 className={`flex flex-col space-y-2 ${
-                  msg.owner ? "self-start" : "self-end"
+                  msg.customerId === userId || msg.agentId === userId
+                    ? "self-start"
+                    : "self-end"
                 }`}
               >
                 <div
                   className={`p-2 rounded-lg ${
-                    msg.owner
+                    msg.customerId === userId || msg.agentId === userId
                       ? "bg-blue-100 text-blue-800"
                       : "bg-green-100 text-green-800"
                   }`}
@@ -65,10 +68,16 @@ export const Messaging = () => {
                   <div>{msg.message}</div>
                   <div className='flex flex-row'>
                     <div className='text-xs text-gray-500 pr-1'>
-                      {msg.owner ? "You" : msg.agent || msg.customer}
+                      {msg.customerId === userId || msg.agentId === userId
+                        ? "You"
+                        : msg.customerId === userId
+                        ? msg.agentId
+                        : msg.customerId}
                     </div>
                     <div className='text-xs text-gray-500'>
-                      {new Date(msg.date).toLocaleString()}
+                      {msg?.date
+                        ? new Date(msg.date).toLocaleString()
+                        : new Date().toLocaleString()}
                     </div>
                   </div>
                 </div>
