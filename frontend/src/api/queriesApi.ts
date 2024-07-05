@@ -23,6 +23,7 @@ export interface Message {
   date?: string;
   agentId?: number;
   customerId?: number;
+  owner?: number;
 }
 
 /**

@@ -62,6 +62,7 @@ export const Messaging = () => {
         message: newMessage,
         agentId: (params.agentId || 0) as number,
         customerId: (params.customerId || 0) as number,
+        owner: userId,
       };
 
       createMessage(newMsg);
@@ -88,14 +89,12 @@ export const Messaging = () => {
                 <div
                   key={msg.id}
                   className={`flex flex-col space-y-2 ${
-                    msg.customerId == userId || msg.agentId == userId
-                      ? "self-start"
-                      : "self-end"
+                    msg.owner == userId ? "self-start" : "self-end"
                   }`}
                 >
                   <div
                     className={`p-2 rounded-lg ${
-                      msg.customerId == userId || msg.agentId == userId
+                      msg.owner == userId
                         ? "bg-blue-100 text-blue-800"
                         : "bg-green-100 text-green-800"
                     }`}
@@ -103,7 +102,7 @@ export const Messaging = () => {
                     <div>{msg.message}</div>
                     <div className='flex flex-row'>
                       <div className='text-xs text-gray-500 pr-1'>
-                        {msg.customerId == userId || msg.agentId == userId
+                        {msg.owner == userId
                           ? "You"
                           : msg.customerId == userId
                           ? msg.agentId

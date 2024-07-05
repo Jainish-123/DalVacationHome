@@ -119,9 +119,6 @@ app.get("/messages/:customerId/:agentId", async (req, res) => {
   const customerId = req.params.customerId;
   const agentId = req.params.agentId;
 
-  console.log("customerId", customerId);
-  console.log("agentId", agentId);
-
   const params = {
     TableName: MESSAGES_TABLE,
     FilterExpression: "customerId = :customerId AND agentId = :agentId",
@@ -154,6 +151,7 @@ app.post("/create-message", async (req, res) => {
       id: { S: uuid4() },
       customerId: { N: `${body.customerId}` },
       agentId: { N: `${body.agentId}` },
+      owner: { N: `${body.owner}` },
       message: { S: body.message },
       date: { S: new Date().toISOString() },
     },
