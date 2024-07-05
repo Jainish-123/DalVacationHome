@@ -13,12 +13,13 @@ interface UserProfile {
 }
 
 const UserProfile: React.FC = () => {
-  const { logout, getSession } = useContext(AuthContext);
+  const { logout, getSession, forgotPassword, confirmPassword } = useContext(AuthContext);
   const [user, setUser] = useState<UserProfile | null>({ email: '', name: '' });
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log();
     const fetchUserDetails = async () => {
       try {
         const session = await getSession();

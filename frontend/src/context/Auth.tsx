@@ -53,8 +53,6 @@ const Auth: React.FC<{ children: ReactNode }> = ({ children }) => {
       user.authenticateUser(authDetails, {
         onSuccess: (data) => {
           console.log("onSuccess:", data);
-          setStatus(true);
-          setRole("user"); // Assuming role is set here, adjust according to your logic
           resolve();
         },
         onFailure: (err) => {
@@ -75,17 +73,14 @@ const Auth: React.FC<{ children: ReactNode }> = ({ children }) => {
       if (user) {
         user.getSession((err: any, session: CognitoUserSession) => {
           if (err) {
-            setStatus(false);
             reject(err);
           } else {
-            setStatus(true);
             const role = session.getIdToken().payload['cognito:groups']?.[0] || "user";
             setRole(role);
             resolve(session);
           }
         });
       } else {
-        setStatus(false);
         reject(new Error("User not found"));
       }
     });
@@ -164,16 +159,7 @@ const Auth: React.FC<{ children: ReactNode }> = ({ children }) => {
 
 const useAuth = (): AccountContextType => {
   const context = useContext(AuthContext);
-  useEffect(() => {
-    context.getSession().then(() => {
-      context.setStatus(true);
-    }).catch((err) => {
-      console.error(err);
-      context.setStatus(false);
-    });
-  }
-  , [context
-  ]);
+
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }

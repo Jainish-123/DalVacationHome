@@ -7,6 +7,7 @@ import { checkAnswer } from '../../api/auth/checkAnswer';
 import { AuthContext } from '../../context/Auth';
 import { User } from '../../api/auth/postUser';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 
 const LoginVerify: React.FC = () => {
@@ -44,7 +45,7 @@ const LoginVerify: React.FC = () => {
         if (id) {
             fetchQuestion(id);
         }
-        generateRandomString(5); 
+        generateRandomString(5);
     }, [id]);
 
     const fetchQuestion = async (id: number) => {
@@ -81,11 +82,13 @@ const LoginVerify: React.FC = () => {
             setRole(userDetails);
             setStatus(true);
             console.log(userDetails);
+            toast.success('Login successful');
             navigate('/#/room-list')
         }
         else 
         {
             console.log('Login failed');
+            toast.error('Login failed');
         }
     }
 

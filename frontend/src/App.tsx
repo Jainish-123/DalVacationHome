@@ -19,6 +19,7 @@ import UserProfile from "./pages/authentication/UserProfile";
 import AppNavbar from "./components/Navbar";
 import { useEffect } from "react";
 import { useAuth } from "./context/Auth";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   const {getSession, setStatus, status} = useAuth();
@@ -27,7 +28,6 @@ function App() {
     <div className="App"> 
       <Router>
         <AppNavbar/>
-       
         <Routes>
           <Route path="/" Component={Home}></Route>
           <Route path="/agent" Component={Agent}></Route>
@@ -42,6 +42,7 @@ function App() {
           <Route path='/userprofile' element={<ProtectedRoute><UserProfile/></ProtectedRoute>}></Route>
           <Route path="*" Component={P404}></Route>
         </Routes>
+        <Toaster/>
       </Router>
     </div>
   );
