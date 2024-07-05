@@ -6,7 +6,7 @@ import { getOneQuestion } from '../../api/authApis';
 import { checkAnswer } from '../../api/authApis';
 import { useAuth } from '../../context/Auth';
 import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
+
 
 
 const LoginVerify: React.FC = () => {
@@ -79,13 +79,11 @@ const LoginVerify: React.FC = () => {
             setRole(userDetails);
             setStatus(true);
             console.log(userDetails);
-            toast.success('Login successful');
             navigate('/#/room-list')
         }
         else 
         {
             console.log('Login failed');
-            toast.error('Login failed');
         }
     }
 

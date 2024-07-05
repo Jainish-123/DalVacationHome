@@ -2,6 +2,11 @@ import { useEffect, useState } from "react";
 import { Query, getAgentQueries } from "../../api/queriesApi";
 import { Link } from "react-router-dom";
 
+/**
+ * Author: Ketul Patel
+ * This component list all queries related agent based on agentId
+ * @returns
+ */
 export const AgentQueries = () => {
   const [agentQueries, setAgentQueries] = useState<Array<Query>>([]);
 

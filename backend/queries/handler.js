@@ -19,6 +19,11 @@ const client = new DynamoDBClient();
 app.use(express.json());
 app.use(cors());
 
+/**
+ * Method to transform DynamoDB Object into simple structure object
+ * @param {*} items
+ * @returns
+ */
 const transformDynamoResponse = (items) => {
   return items.map((item) => {
     const normalObject = {};
@@ -31,7 +36,9 @@ const transformDynamoResponse = (items) => {
   });
 };
 
-// Fetch queries by agentId
+/**
+ * This endpoint fetches queries related agents based on given agentId
+ */
 app.get("/agent-queries/:agentId", async (req, res) => {
   const agentId = req.params.agentId;
   const params = {
@@ -51,7 +58,9 @@ app.get("/agent-queries/:agentId", async (req, res) => {
   }
 });
 
-// Fetch queries by customerId
+/**
+ * This endpoint fetches queries related customers based on given customerId
+ */
 app.get("/customer-queries/:customerId", async (req, res) => {
   const customerId = req.params.customerId;
   const params = {
@@ -74,6 +83,9 @@ app.get("/customer-queries/:customerId", async (req, res) => {
   }
 });
 
+/**
+ * Webhook endpoint for handling customer query which assign random agent to customer query
+ */
 app.post("/handle-customer-query", async (req, res) => {
   const buffer = req.body;
   const jsonString = Buffer.from(buffer, "base64").toString("utf8");
@@ -100,7 +112,9 @@ app.post("/handle-customer-query", async (req, res) => {
   }
 });
 
-// Fetch queries by customerId
+/**
+ * This endpoint fetches messages for given customerID and agentId
+ */
 app.get("/messages/:customerId/:agentId", async (req, res) => {
   const customerId = req.params.customerId;
   const agentId = req.params.agentId;
@@ -125,6 +139,9 @@ app.get("/messages/:customerId/:agentId", async (req, res) => {
   }
 });
 
+/**
+ * Endpoint to create and insert message into DynamoDB
+ */
 app.post("/create-message", async (req, res) => {
   const body = req.body;
   const params = {
@@ -146,10 +163,16 @@ app.post("/create-message", async (req, res) => {
   }
 });
 
+/**
+ * Default route to show 404 page
+ */
 app.use((req, res, next) => {
   return res.status(404).json({
     error: "Not Found",
   });
 });
 
+/**
+ * Serverless application running express app
+ */
 exports.handler = serverless(app);

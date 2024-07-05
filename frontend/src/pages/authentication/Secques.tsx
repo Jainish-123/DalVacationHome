@@ -63,12 +63,10 @@ const SecurityQuestions: React.FC = () => {
         key: cipherKey
       })
       console.log(await postUser({email: email, queId: [selectedQuestions[0].queId,selectedQuestions[1].queId], name: name, role: "user"}))
-      toast.success('Security answers submitted successfully');
       navigate('/dashboard');
     } catch (error) {
       console.error('Failed to submit security answers:', error);
       setMessage('Failed to submit security answers. Please try again.');
-      toast.error('Failed to submit security answers');
     }
   };
 
