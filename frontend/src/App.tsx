@@ -21,12 +21,13 @@ import UserProfile from "./pages/authentication/UserProfile";
 import AppNavbar from "./components/Navbar";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
+import ChatbotLoader from "./components/ChatbotLoader";
 
 function App() {
   return (
     <div className="App">
       <Router>
-        <AppNavbar/>
+        <AppNavbar />
         <Routes>
           <Route path='/' Component={Home}></Route>
           <Route path='/agent' Component={Agent}></Route>
@@ -39,7 +40,7 @@ function App() {
           <Route path="/login" Component={Login}></Route>
           <Route path="/signup" Component={SignUp}></Route>
           <Route path="/verify" Component={VerifyEmail}></Route>
-          <Route path="/sec-ques" Component={SecurityQuestions}></Route> 
+          <Route path="/sec-ques" Component={SecurityQuestions}></Route>
           <Route path="/login-verify" Component={LoginVerify}></Route>
           <Route path='/forgotpass' Component={ForgotPassword}></Route>
           <Route path='/userprofile' Component={UserProfile}></Route>
@@ -47,6 +48,7 @@ function App() {
         </Routes>
       </Router>
       <ToastContainer position='top-right' theme='light' />
+      <ChatbotLoader />
     </div>
   );
 }
