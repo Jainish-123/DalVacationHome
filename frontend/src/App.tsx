@@ -7,11 +7,13 @@ import { Booking } from "./pages/booking/Booking";
 import { RoomList } from "./pages/RoomList";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
+import ChatbotLoader from "./components/ChatbotLoader";
 
 function App() {
   return (
     <div className="App">
       <BrowserRouter>
+        <ChatbotLoader />
         <Routes>
           <Route path="/" Component={Home}></Route>
           <Route path="/agent" Component={Agent}></Route>
