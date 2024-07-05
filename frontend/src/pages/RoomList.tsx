@@ -4,7 +4,7 @@ import { getRooms } from "../api/getRooms";
 import RoomCard from "../components/RoomCard";
 import { Grid } from "@mui/material";
 
-export const RoomList: React.FC = () => {
+const RoomList: React.FC = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
 
   useEffect(() => {
@@ -18,10 +18,12 @@ export const RoomList: React.FC = () => {
   return (
     <Grid container spacing={2}>
       {rooms.map((room) => (
-        <Grid item xs={12} sm={6} md={4} key={room.id}>
+        <Grid item xs={12} sm={6} md={4} key={room.room}>
           <RoomCard room={room} />
         </Grid>
       ))}
     </Grid>
   );
 };
+
+export default RoomList;

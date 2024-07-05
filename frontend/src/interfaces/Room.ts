@@ -1,11 +1,9 @@
-export default interface Room {
-  id: number;
-  image: string;
-  roomNumber: string;
-  price: string;
-  rating: number;
-  location: string;
-  beds: number;
-  guests: number;
-  baths: number;
+export default interface Rooms {
+  Agent: number;
+  Address: string;
+  Amenities: string[];
+  Availability: string;
+  Beds: number;
+  room: string;
+  Price: number;
 }

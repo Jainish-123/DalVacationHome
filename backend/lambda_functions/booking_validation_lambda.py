@@ -2,57 +2,92 @@ import json
 import boto3
 import os
 
-# Initialize the SNS and SQS clients
+# Initialize boto3 clients
+dynamodb = boto3.resource('dynamodb')
 sns = boto3.client('sns')
-sqs = boto3.client('sqs')
 
-# Environment variables for the SNS topic ARN
+# Environment variables
+ROOMS_TABLE_NAME = os.environ['ROOMS_TABLE_NAME']
+BOOKINGS_TABLE_NAME = os.environ['BOOKINGS_TABLE_NAME']
 SNS_TOPIC_ARN = os.environ['SNS_TOPIC_ARN']
 
-def check_room_availability(room_id, check_in, check_out):
-    # Implement your logic to check room availability
-    # Return True if available, False otherwise
-    return True
-
 def lambda_handler(event, context):
+    rooms_table = dynamodb.Table(ROOMS_TABLE_NAME)
+    bookings_table = dynamodb.Table(BOOKINGS_TABLE_NAME)
+    
     for record in event['Records']:
         try:
-            # Extract the message body
-            booking_details = json.loads(record['body'])
+            # Parse message body from SQS event
+            message = json.loads(record['body'])
             
-            # Extract room details
-            room_id = booking_details['room_id']
-            check_in = booking_details['details']['check_in']
-            check_out = booking_details['details']['check_out']
+            # Extract necessary information
+            booking_id = message['booking_id']
+            email = message['email']
+            room_id = message['room_id']
             
-            # Check room availability
-            is_available = check_room_availability(room_id, check_in, check_out)
+            # Check room availability in DynamoDB
+            response = rooms_table.get_item(
+                Key={'room': room_id}
+            )
             
-            if is_available:
-                message = 'Your booking is confirmed!'
-                status = 'confirmed'
-            else:
-                message = 'Your booking is rejected due to unavailability.'
-                status = 'rejected'
+            if 'Item' not in response or response['Item']['Availability'] != 'Available':
+                return {
+                    'statusCode': 400,
+                    'body': json.dumps({
+                        'error': f'Room {room_id} is not available.'
+                    })
+                }
             
-            # Send a confirmation or rejection notification
+            # Update room availability to 'Not Available'
+            rooms_table.update_item(
+                Key={'room': room_id},
+                UpdateExpression="set Availability = :a",
+                ExpressionAttributeValues={':a': 'Not Available'}
+            )
+            
+            # Add booking information to the bookings table
+            bookings_table.put_item(
+                Item={
+                    'bookingid': booking_id,
+                    'email': email,
+                    'room_id': room_id,
+                    'status': 'Confirmed'
+                }
+            )
+            
+            # Construct SNS message
+            subject = "Booking Confirmation"
+            body_text = (f"Dear Customer,\n\n"
+                         f"Your booking for room {room_id} has been confirmed.\n"
+                         f"Booking ID: {booking_id}\n\n"
+                         f"Thank you for choosing our service.\n")
+            
+            # Publish to SNS
             sns.publish(
                 TopicArn=SNS_TOPIC_ARN,
-                Message=json.dumps({
-                    'default': json.dumps({
-                        'booking_id': booking_details['booking_id'],
-                        'message': message,
-                        'status': status,
-                        'email': booking_details['email']
-                    })
-                }),
-                MessageStructure='json'
+                Message=body_text,
+                Subject=subject,
+                MessageAttributes={
+                    'email': {
+                        'DataType': 'String',
+                        'StringValue': email
+                    }
+                }
             )
             
         except Exception as e:
-            print(f"Error processing booking: {str(e)}")
+            print(f"Error processing record: {record}")
+            print(f"Error message: {str(e)}")
+            return {
+                'statusCode': 500,
+                'body': json.dumps({
+                    'error': 'An error occurred',
+                    'details': str(e)
+                })
+            }
     
     return {
         'statusCode': 200,
-        'body': json.dumps('Processed booking messages.')
+        'body': json.dumps('Booking confirmation sent successfully.')
     }
+

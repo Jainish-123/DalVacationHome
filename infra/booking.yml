@@ -6,7 +6,7 @@ Resources:
     Properties:
       QueueName: BookingQueue.fifo
       FifoQueue: true
-      ContentBasedDeduplication: true
+      ContentBasedDeduplication: false
 
   BookingNotificationsTopic:
     Type: AWS::SNS::Topic
