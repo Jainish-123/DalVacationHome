@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Query, getAgentQueries } from "../../api/queriesApi";
 import { Link } from "react-router-dom";
+import { getUser } from "../../api/authApis";
+import { useAuth } from "../../context/Auth";
 
 /**
  * Author: Ketul Patel
@@ -10,12 +12,36 @@ import { Link } from "react-router-dom";
 export const AgentQueries = () => {
   const [agentQueries, setAgentQueries] = useState<Array<Query>>([]);
 
+  const { getSession } = useAuth();
+
+  const [agentId, setAgentId] = useState<number | undefined>(undefined);
+
+  const fetchUserDetails = async () => {
+    try {
+      const session = await getSession();
+      const email = session.getIdToken().payload.email;
+
+      const data = await getUser(email);
+      setAgentId(data.data.userId);
+    } catch (err) {
+      console.error("Error fetching user details:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserDetails();
+  }, []);
+
   useEffect(() => {
     const _init = async () => {
-      setAgentQueries((await getAgentQueries("123")).data);
+      if (agentId) {
+        setAgentQueries((await getAgentQueries(agentId)).data);
+      }
     };
-    _init();
-  }, []);
+    if (agentId) {
+      _init();
+    }
+  }, [agentId]);
 
   return (
     <div>

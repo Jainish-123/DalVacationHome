@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { getCustomerQueries, Query } from "../../api/queriesApi";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../context/Auth";
+import { getUser } from "../../api/authApis";
 
 /**
  * Author: Ketul Patel
@@ -9,13 +11,37 @@ import { Link } from "react-router-dom";
  */
 export const CustomerQueries = () => {
   const [customerQueries, setCustomerQueries] = useState<Array<Query>>([]);
+  const { getSession } = useAuth();
+
+  const [customerId, setCustomerId] = useState<number | undefined>(undefined);
+
+  const fetchUserDetails = async () => {
+    try {
+      const session = await getSession();
+      const email = session.getIdToken().payload.email;
+
+      const data = await getUser(email);
+      setCustomerId(data.data.userId);
+    } catch (err) {
+      console.error("Error fetching user details:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserDetails();
+  }, []);
 
   useEffect(() => {
     const _init = async () => {
-      setCustomerQueries((await getCustomerQueries("123")).data);
+      if (customerId) {
+        setCustomerQueries((await getCustomerQueries(customerId)).data);
+      }
     };
-    _init();
-  }, []);
+
+    if (customerId) {
+      _init();
+    }
+  }, [customerId]);
 
   return (
     <div>

@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { createMessage, getMessages, Message } from "../../api/queriesApi";
 import { toast } from "react-toastify";
+import { getUser, User } from "../../api/authApis";
+import { useAuth } from "../../context/Auth";
 
 /**
  * Author: Ketul Patel
@@ -15,7 +17,29 @@ export const Messaging = () => {
   const [newMessage, setNewMessage] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  const userId = "123";
+  const { getSession } = useAuth();
+
+  const [userId, setUserId] = useState<number | undefined>(undefined);
+
+  const [user, setUser] = useState<User>();
+
+  const fetchUserDetails = async () => {
+    try {
+      const session = await getSession();
+      const email = session.getIdToken().payload.email;
+
+      const data = await getUser(email);
+      setUserId(data.data.userId);
+      setUser(data.data);
+    } catch (err) {
+      console.error("Error fetching user details:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserDetails();
+  }, []);
+
   useEffect(() => {
     const _init = async () => {
       setMessages(
@@ -36,8 +60,10 @@ export const Messaging = () => {
     if (newMessage.trim()) {
       const newMsg: Message = {
         message: newMessage,
-        agentId: params.agentId,
-        customerId: params.customerId,
+        agentId:
+          user?.role === "admin" ? userId : parseInt(params.agentId || "0"),
+        customerId:
+          user?.role !== "admin" ? userId : parseInt(params.customerId || "0"),
       };
       createMessage(newMsg);
       setMessages([...messages, newMsg]);

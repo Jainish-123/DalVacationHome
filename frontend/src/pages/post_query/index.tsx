@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { postMessage } from "../../api/queriesApi";
 import { toast } from "react-toastify";
+import { useAuth } from "../../context/Auth";
+import { getUser } from "../../api/authApis";
 
 /**
  * Author: Ketul Patel
@@ -9,6 +11,26 @@ import { toast } from "react-toastify";
  */
 export const PostQuery = () => {
   const [message, setMessage] = useState("");
+
+  const { getSession } = useAuth();
+
+  const [userId, setUserId] = useState<number | undefined>(undefined);
+
+  const fetchUserDetails = async () => {
+    try {
+      const session = await getSession();
+      const email = session.getIdToken().payload.email;
+
+      const data = await getUser(email);
+      setUserId(data.data.userId);
+    } catch (err) {
+      console.error("Error fetching user details:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserDetails();
+  }, []);
 
   return (
     <div className='flex flex-col gap-2 justify-center items-center h-screen w-full'>
@@ -27,7 +49,7 @@ export const PostQuery = () => {
             <button
               className='btn btn-primary mt-3'
               onClick={async () => {
-                await postMessage(message);
+                await postMessage(message, userId);
                 toast("Successfully posted query", {
                   type: "success",
                 });

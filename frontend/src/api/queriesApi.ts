@@ -8,8 +8,8 @@ export interface Query {
   id: string;
   description: string;
   date: string;
-  agentId: string;
-  customerId: string;
+  agentId: number;
+  customerId: number;
   bookingId: string;
 }
 
@@ -21,8 +21,8 @@ export interface Message {
   id?: string;
   message: string;
   date?: string;
-  agentId?: string;
-  customerId?: string;
+  agentId?: number;
+  customerId?: number;
 }
 
 /**
@@ -38,7 +38,7 @@ const QUERIES_ENDPOINT =
  * @param agentId agentId for whom queries needs to be fetched
  * @returns
  */
-export const getAgentQueries = (agentId: string) => {
+export const getAgentQueries = (agentId: number) => {
   return getRequest<Array<Query>>(
     QUERIES_ENDPOINT + "agent-queries/" + agentId
   );
@@ -50,7 +50,7 @@ export const getAgentQueries = (agentId: string) => {
  * @param agentId customerId for whom queries needs to be fetched
  * @returns
  */
-export const getCustomerQueries = (customerId: string) => {
+export const getCustomerQueries = (customerId: number) => {
   return getRequest<Array<Query>>(
     QUERIES_ENDPOINT + "customer-queries/" + customerId
   );
@@ -62,11 +62,11 @@ export const getCustomerQueries = (customerId: string) => {
  * @param message message to insert in Pub/Sub queue
  * @returns
  */
-export const postMessage = (message: string) => {
+export const postMessage = (message: string, userId: number | undefined) => {
   return postRequest<any>(
     "https://us-central1-serverless-426912.cloudfunctions.net/post-customer-query",
     {
-      customerId: "123",
+      customerId: userId,
       bookingId: "123",
       message: message,
     }

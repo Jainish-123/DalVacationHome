@@ -45,7 +45,7 @@ app.get("/agent-queries/:agentId", async (req, res) => {
     TableName: QUERIES_TABLE,
     FilterExpression: "agentId = :agentId",
     ExpressionAttributeValues: {
-      ":agentId": { S: agentId },
+      ":agentId": { N: `${agentId}` },
     },
   };
 
@@ -67,7 +67,7 @@ app.get("/customer-queries/:customerId", async (req, res) => {
     TableName: QUERIES_TABLE,
     FilterExpression: "customerId = :customerId",
     ExpressionAttributeValues: {
-      ":customerId": { S: customerId },
+      ":customerId": { N: `${customerId}` },
     },
   };
 
@@ -96,8 +96,8 @@ app.post("/handle-customer-query", async (req, res) => {
     TableName: QUERIES_TABLE,
     Item: {
       id: { S: uuid4() },
-      customerId: { S: body.customerId },
-      agentId: { S: "123" },
+      customerId: { N: `${body.customerId}` },
+      agentId: { N: `562339209483406398` },
       bookingId: { S: body.bookingId },
       description: { S: body.message },
       date: { S: new Date().toISOString() },
@@ -122,8 +122,8 @@ app.get("/messages/:customerId/:agentId", async (req, res) => {
     TableName: MESSAGES_TABLE,
     FilterExpression: "customerId = :customerId AND agentId = :agentId",
     ExpressionAttributeValues: {
-      ":customerId": { S: customerId },
-      ":agentId": { S: agentId },
+      ":customerId": { N: `${customerId}` },
+      ":agentId": { N: `${agentId}` },
     },
   };
 
@@ -148,8 +148,8 @@ app.post("/create-message", async (req, res) => {
     TableName: MESSAGES_TABLE,
     Item: {
       id: { S: uuid4() },
-      customerId: { S: body.customerId },
-      agentId: { S: body.agentId },
+      customerId: { N: `${body.customerId}` },
+      agentId: { N: `${body.agentId}` },
       message: { S: body.message },
       date: { S: new Date().toISOString() },
     },
