@@ -25,7 +25,7 @@ export const RoomManagment = () => {
   const navigate = useNavigate();
 
   const handleAddRoom = () => {
-    navigate("/room_managment/add");
+    navigate("/room-managment/add");
   };
 
   return (
