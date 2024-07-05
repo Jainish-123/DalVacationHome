@@ -6,6 +6,7 @@ import { getOneQuestion } from '../../api/authApis';
 import { checkAnswer } from '../../api/authApis';
 import { useAuth } from '../../context/Auth';
 import { useNavigate } from 'react-router-dom';
+import {toast} from 'react-toastify';
 
 
 
@@ -29,6 +30,7 @@ const LoginVerify: React.FC = () => {
         try {
             const response = await getUser(email);
             const role = response.data.role;
+            localStorage.setItem('role', role);
             setUserDetails(role);
             const randomId = response.data.queId[Math.floor(Math.random() * response.data.queId.length)];
             setId(randomId);
@@ -38,7 +40,6 @@ const LoginVerify: React.FC = () => {
     };
 
     useEffect(() => {
-        
         if (id) {
             fetchQuestion(id);
         }
@@ -79,7 +80,10 @@ const LoginVerify: React.FC = () => {
             setRole(userDetails);
             setStatus(true);
             console.log(userDetails);
-            navigate('/#/room-list')
+            navigate('/')
+            toast('Login successful',{
+                type: 'success'
+            });
         }
         else 
         {

@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Que, getQuestions } from '../../api/authApis';
 import { postUser } from '../../api/authApis';
 import { postAnswers } from '../../api/authApis';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 const SecurityQuestions: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -63,7 +63,8 @@ const SecurityQuestions: React.FC = () => {
         key: cipherKey
       })
       console.log(await postUser({email: email, queId: [selectedQuestions[0].queId,selectedQuestions[1].queId], name: name, role: "user"}))
-      navigate('/dashboard');
+      navigate('/');
+      toast.success('Security answers submitted successfully');
     } catch (error) {
       console.error('Failed to submit security answers:', error);
       setMessage('Failed to submit security answers. Please try again.');
