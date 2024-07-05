@@ -34,40 +34,36 @@ export const RoomManagment = () => {
         <table className="my-5 table table-striped container">
           <thead>
             <tr>
-              <th>Room ID</th>
-              <th>Image</th>
-              <th>Room Number</th>
-              <th>Price</th>
-              <th>Rating</th>
-              <th>Location</th>
+              <th>Agent</th>
+              <th>Address</th>
+              <th>Amenities</th>
+              <th>Availability</th>
               <th>Beds</th>
-              <th>Guests</th>
-              <th>Baths</th>
+              <th>Room</th>
+              <th>Price</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {rooms.map((room) => (
-              <tr key={room.id}>
-                <td>{room.id}</td>
-                <td>{room.image}</td>
-                <td>{room.roomNumber}</td>
-                <td>{room.price}</td>
-                <td>{room.rating}</td>
-                <td>{room.location}</td>
-                <td>{room.beds}</td>
-                <td>{room.guests}</td>
-                <td>{room.baths}</td>
+              <tr key={room.room}>
+                <td>{room.Agent}</td>
+                <td>{room.Address}</td>
+                <td>{room.Amenities.join(", ")}</td>
+                <td>{room.Availability}</td>
+                <td>{room.Beds}</td>
+                <td>{room.room}</td>
+                <td>{room.Price}</td>
                 <td>
                   <button
                     className="btn btn-warning mx-1"
-                    onClick={() => handleEdit(room.id)}
+                    onClick={() => handleEdit(Number(room.room))}
                   >
                     Edit
                   </button>
                   <button
                     className="btn btn-danger mx-1"
-                    onClick={() => handleDelete(room.id)}
+                    onClick={() => handleDelete(Number(room.room))}
                   >
                     Delete
                   </button>
@@ -85,3 +81,5 @@ export const RoomManagment = () => {
     </div>
   );
 };
+
+export default RoomManagment;

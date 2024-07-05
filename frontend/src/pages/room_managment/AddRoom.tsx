@@ -1,30 +1,17 @@
 import React, { useState } from "react";
 import { Form, Button } from "react-bootstrap";
 import axios from "axios";
-
-interface Room {
-  id: number;
-  image: string;
-  roomNumber: string;
-  price: string;
-  rating: number;
-  location: string;
-  beds: number;
-  guests: number;
-  baths: number;
-}
+import Room from "../../interfaces/Room";
 
 export const AddRoom = () => {
   const [room, setRoom] = useState<Room>({
-    id: 0,
-    image: "",
-    roomNumber: "",
-    price: "",
-    rating: 0,
-    location: "",
-    beds: 0,
-    guests: 0,
-    baths: 0,
+    Agent: 0,
+    Address: "",
+    Amenities: [],
+    Availability: "",
+    Beds: 0,
+    room: "",
+    Price: 0,
   });
 
   const handleRequest = async (
@@ -65,103 +52,84 @@ export const AddRoom = () => {
     // Add your logic to handle the form submission here
     console.log(room);
   };
-
   return (
-    <div className="my-4 container">
-      <h1>Add Room</h1>
-      <Form className="container my-5" onSubmit={handleSubmit}>
-        <Form.Group controlId="image" className="row">
-          <Form.Label className="col">Image</Form.Label>
-          <Form.Control
-            className="col"
-            type="text"
-            name="image"
-            value={room.image}
-            onChange={handleChange}
-          />
-        </Form.Group>
+    <div>
+      <Form.Group controlId="agent" className="row">
+        <Form.Label className="col">Agent</Form.Label>
+        <Form.Control
+          className="col"
+          type="text"
+          name="agent"
+          value={room.Agent}
+          onChange={handleChange}
+        />
+      </Form.Group>
 
-        <Form.Group controlId="roomNumber" className="row">
-          <Form.Label className="col">Room Number</Form.Label>
-          <Form.Control
-            className="col"
-            type="text"
-            name="roomNumber"
-            value={room.roomNumber}
-            onChange={handleChange}
-          />
-        </Form.Group>
+      <Form.Group controlId="address" className="row">
+        <Form.Label className="col">Address</Form.Label>
+        <Form.Control
+          className="col"
+          type="text"
+          name="address"
+          value={room.Address}
+          onChange={handleChange}
+        />
+      </Form.Group>
 
-        <Form.Group controlId="price" className="row">
-          <Form.Label className="col">Price</Form.Label>
-          <Form.Control
-            className="col"
-            type="text"
-            name="price"
-            value={room.price}
-            onChange={handleChange}
-          />
-        </Form.Group>
+      <Form.Group controlId="amenities" className="row">
+        <Form.Label className="col">Amenities</Form.Label>
+        <Form.Control
+          className="col"
+          type="text"
+          name="amenities"
+          value={room.Amenities}
+          onChange={handleChange}
+        />
+      </Form.Group>
 
-        <Form.Group controlId="rating" className="row">
-          <Form.Label className="col">Rating</Form.Label>
-          <Form.Control
-            className="col"
-            type="number"
-            name="rating"
-            value={room.rating}
-            onChange={handleChange}
-          />
-        </Form.Group>
+      <Form.Group controlId="availability" className="row">
+        <Form.Label className="col">Availability</Form.Label>
+        <Form.Control
+          className="col"
+          type="text"
+          name="availability"
+          value={room.Availability}
+          onChange={handleChange}
+        />
+      </Form.Group>
 
-        <Form.Group controlId="location" className="row">
-          <Form.Label className="col">Location</Form.Label>
-          <Form.Control
-            className="col"
-            type="text"
-            name="location"
-            value={room.location}
-            onChange={handleChange}
-          />
-        </Form.Group>
+      <Form.Group controlId="beds" className="row">
+        <Form.Label className="col">Beds</Form.Label>
+        <Form.Control
+          className="col"
+          type="number"
+          name="beds"
+          value={room.Beds}
+          onChange={handleChange}
+        />
+      </Form.Group>
 
-        <Form.Group controlId="beds" className="row">
-          <Form.Label className="col">Beds</Form.Label>
-          <Form.Control
-            className="col"
-            type="number"
-            name="beds"
-            value={room.beds}
-            onChange={handleChange}
-          />
-        </Form.Group>
+      <Form.Group controlId="room" className="row">
+        <Form.Label className="col">Room</Form.Label>
+        <Form.Control
+          className="col"
+          type="text"
+          name="room"
+          value={room.room}
+          onChange={handleChange}
+        />
+      </Form.Group>
 
-        <Form.Group controlId="guests" className="row">
-          <Form.Label className="col">Guests</Form.Label>
-          <Form.Control
-            className="col"
-            type="number"
-            name="guests"
-            value={room.guests}
-            onChange={handleChange}
-          />
-        </Form.Group>
-
-        <Form.Group controlId="baths" className="row">
-          <Form.Label className="col">Baths</Form.Label>
-          <Form.Control
-            className="col"
-            type="number"
-            name="baths"
-            value={room.baths}
-            onChange={handleChange}
-          />
-        </Form.Group>
-
-        <Button className="my-5" variant="primary" onClick={handleRequest}>
-          Add Room
-        </Button>
-      </Form>
+      <Form.Group controlId="price" className="row">
+        <Form.Label className="col">Price</Form.Label>
+        <Form.Control
+          className="col"
+          type="number"
+          name="price"
+          value={room.Price}
+          onChange={handleChange}
+        />
+      </Form.Group>
     </div>
   );
 };
