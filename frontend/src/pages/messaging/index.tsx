@@ -60,11 +60,10 @@ export const Messaging = () => {
     if (newMessage.trim()) {
       const newMsg: Message = {
         message: newMessage,
-        agentId:
-          user?.role === "admin" ? userId : parseInt(params.agentId || "0"),
-        customerId:
-          user?.role !== "admin" ? userId : parseInt(params.customerId || "0"),
+        agentId: (params.agentId || 0) as number,
+        customerId: (params.customerId || 0) as number,
       };
+
       createMessage(newMsg);
       setMessages([...messages, newMsg]);
       toast("Message send successfully", {
@@ -84,40 +83,42 @@ export const Messaging = () => {
             className='flex flex-col space-y-4 h-96 overflow-y-auto'
             id='messagesContainer'
           >
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex flex-col space-y-2 ${
-                  msg.customerId === userId || msg.agentId === userId
-                    ? "self-start"
-                    : "self-end"
-                }`}
-              >
+            {messages.map((msg) => {
+              return (
                 <div
-                  className={`p-2 rounded-lg ${
-                    msg.customerId === userId || msg.agentId === userId
-                      ? "bg-blue-100 text-blue-800"
-                      : "bg-green-100 text-green-800"
+                  key={msg.id}
+                  className={`flex flex-col space-y-2 ${
+                    msg.customerId == userId || msg.agentId == userId
+                      ? "self-start"
+                      : "self-end"
                   }`}
                 >
-                  <div>{msg.message}</div>
-                  <div className='flex flex-row'>
-                    <div className='text-xs text-gray-500 pr-1'>
-                      {msg.customerId === userId || msg.agentId === userId
-                        ? "You"
-                        : msg.customerId === userId
-                        ? msg.agentId
-                        : msg.customerId}
-                    </div>
-                    <div className='text-xs text-gray-500'>
-                      {msg?.date
-                        ? new Date(msg.date).toLocaleString()
-                        : new Date().toLocaleString()}
+                  <div
+                    className={`p-2 rounded-lg ${
+                      msg.customerId == userId || msg.agentId == userId
+                        ? "bg-blue-100 text-blue-800"
+                        : "bg-green-100 text-green-800"
+                    }`}
+                  >
+                    <div>{msg.message}</div>
+                    <div className='flex flex-row'>
+                      <div className='text-xs text-gray-500 pr-1'>
+                        {msg.customerId == userId || msg.agentId == userId
+                          ? "You"
+                          : msg.customerId == userId
+                          ? msg.agentId
+                          : msg.customerId}
+                      </div>
+                      <div className='text-xs text-gray-500'>
+                        {msg?.date
+                          ? new Date(msg.date).toLocaleString()
+                          : new Date().toLocaleString()}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             <div ref={messagesEndRef} />
           </div>
           <div className='mt-4'>

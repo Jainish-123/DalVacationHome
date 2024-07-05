@@ -118,6 +118,10 @@ app.post("/handle-customer-query", async (req, res) => {
 app.get("/messages/:customerId/:agentId", async (req, res) => {
   const customerId = req.params.customerId;
   const agentId = req.params.agentId;
+
+  console.log("customerId", customerId);
+  console.log("agentId", agentId);
+
   const params = {
     TableName: MESSAGES_TABLE,
     FilterExpression: "customerId = :customerId AND agentId = :agentId",
