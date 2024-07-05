@@ -73,10 +73,12 @@ const Auth: React.FC<{ children: ReactNode }> = ({ children }) => {
       if (user) {
         user.getSession((err: any, session: CognitoUserSession) => {
           if (err) {
+            setStatus(false);
             reject(err);
           } else {
             const role = session.getIdToken().payload['cognito:groups']?.[0] || "user";
             setRole(role);
+            setStatus(true);
             resolve(session);
           }
         });
@@ -159,7 +161,6 @@ const Auth: React.FC<{ children: ReactNode }> = ({ children }) => {
 
 const useAuth = (): AccountContextType => {
   const context = useContext(AuthContext);
-
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }

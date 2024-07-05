@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Que, getQuestions } from '../../api/auth/getSecurityQue';
-import { postUser, User } from '../../api/auth/postUser';
-import { Answers, AnswersPayload, postAnswers } from '../../api/auth/postAnswers';
+import { Que, getQuestions } from '../../api/authApis';
+import { postUser } from '../../api/authApis';
+import { postAnswers } from '../../api/authApis';
 import toast from 'react-hot-toast';
 const SecurityQuestions: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.email || '';
-  const password = location.state?.password || '';
   const name = location.state?.name || '';
   const [questions, setQuestions] = useState<Que[]>([]);
   const [selectedQuestions, setSelectedQuestions] = useState<{ queId: number | undefined, question: string, answer: string }[]>([

@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Col, Button, Row, Container, Card, Form } from "react-bootstrap";
 import { Link, useNavigate } from 'react-router-dom';
-import {Auth, AuthContext} from '../../context/Auth';
+import { AuthContext} from '../../context/Auth';
 
 export const Login = () => {
   const navigate = useNavigate();
@@ -27,7 +27,7 @@ export const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try{
-      const data = await authenticate(user.email, user.password);
+      await authenticate(user.email, user.password);
       navigate('/login-verify',{state:{
         email: user.email,
       }});

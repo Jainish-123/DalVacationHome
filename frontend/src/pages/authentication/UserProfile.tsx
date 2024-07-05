@@ -1,20 +1,18 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Card, Container, Row, Col, Button, Alert } from 'react-bootstrap';
-import { AuthContext } from '../../context/Auth';
+import {  useAuth } from '../../context/Auth';
 import { useNavigate } from 'react-router-dom';
-import { getUser } from '../../api/auth/getUser';
-import UserPool from '../../utils/UserPool';
-import { CognitoUserSession } from 'amazon-cognito-identity-js';
+import { getUser } from '../../api/authApis';
 
-interface UserProfile {
+interface UserProfileInterface {
   email: string;
   name: string;
 // Add other fields as necessary
 }
 
 const UserProfile: React.FC = () => {
-  const { logout, getSession, forgotPassword, confirmPassword } = useContext(AuthContext);
-  const [user, setUser] = useState<UserProfile | null>({ email: '', name: '' });
+  const { logout, getSession } = useAuth();
+  const [user, setUser] = useState<UserProfileInterface | null>({ email: '', name: '' });
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
