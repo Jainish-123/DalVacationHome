@@ -35,10 +35,8 @@ export const AddRoom = () => {
       const response = await axios.post(
         "https://p2r4cn9vyj.execute-api.us-east-1.amazonaws.com/dev/room",
         {
-          body: JSON.stringify({
-            email: "krishnavaibhav.y@gmail.com",
-            room_id: "103",
-          }),
+          email: "krishnavaibhav.y@gmail.com",
+          room_id: "103",
         },
         {
           headers: {
