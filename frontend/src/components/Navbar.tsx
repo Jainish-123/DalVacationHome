@@ -33,7 +33,6 @@ const AppNavbar: React.FC = () => {
               <>
                 <Nav.Link href='/userprofile'>Profile</Nav.Link>
                 <Nav.Link href='/post-query'>Post Query</Nav.Link>
-                <Nav.Link href='/messaging/123/123'>Messaging</Nav.Link>
                 <Nav.Link href='/customer-queries'>Customer Queries</Nav.Link>
                 {role === "admin" && (
                   <Nav.Link href='/agent-queries'>Agent Queries</Nav.Link>
