@@ -2,6 +2,11 @@ import { useEffect, useState } from "react";
 import { getCustomerQueries, Query } from "../../api/queriesApi";
 import { Link } from "react-router-dom";
 
+/**
+ * Author: Ketul Patel
+ * This component list all queries related customer based on customerId
+ * @returns
+ */
 export const CustomerQueries = () => {
   const [customerQueries, setCustomerQueries] = useState<Array<Query>>([]);
 

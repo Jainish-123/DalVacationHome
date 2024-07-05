@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { createMessage, getMessages, Message } from "../../api/queriesApi";
+import { toast } from "react-toastify";
 
+/**
+ * Author: Ketul Patel
+ * This component renders messaging inbox for customer and agent where they can chat with each other
+ * @returns
+ */
 export const Messaging = () => {
   const params = useParams();
 
@@ -35,6 +41,9 @@ export const Messaging = () => {
       };
       createMessage(newMsg);
       setMessages([...messages, newMsg]);
+      toast("Message send successfully", {
+        type: "success",
+      });
       setNewMessage("");
       scrollToBottom();
     }

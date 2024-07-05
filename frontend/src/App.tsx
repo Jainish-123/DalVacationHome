@@ -11,6 +11,8 @@ import { CustomerQueries } from "./pages/customer_queries";
 import { AgentQueries } from "./pages/agent_queries";
 import { Messaging } from "./pages/messaging";
 import { PostQuery } from "./pages/post_query";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
@@ -28,6 +30,7 @@ function App() {
           <Route path='*' Component={P404}></Route>
         </Routes>
       </Router>
+      <ToastContainer position='top-right' theme='light' />
     </div>
   );
 }

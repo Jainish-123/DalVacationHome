@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { postMessage } from "../../api/queriesApi";
+import { toast } from "react-toastify";
 
+/**
+ * Author: Ketul Patel
+ * This component allows to enter query using simple input which can be further inserted into Google Pub/Sub
+ * @returns
+ */
 export const PostQuery = () => {
   const [message, setMessage] = useState("");
 
@@ -20,8 +26,12 @@ export const PostQuery = () => {
             />
             <button
               className='btn btn-primary mt-3'
-              onClick={() => {
-                postMessage(message);
+              onClick={async () => {
+                await postMessage(message);
+                toast("Successfully posted query", {
+                  type: "success",
+                });
+                setMessage("");
               }}
             >
               Post message
