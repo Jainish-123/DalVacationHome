@@ -39,7 +39,7 @@ export const PostQuery = () => {
           <h2>Enter a message</h2>
           <div className='flex flex-col'>
             <textarea
-              className='border-2 border-black min-h-[120px]'
+              className='border-2 p-1 border-black min-h-[120px]'
               placeholder='Enter a message'
               value={message}
               onChange={(e) => {
