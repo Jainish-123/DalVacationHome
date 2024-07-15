@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { postMessage } from "../../api/queriesApi";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/Auth";
-import { getUser } from "../../api/authApis";
+import { getUser, User } from "../../api/authApis";
 
 /**
  * Author: Ketul Patel
@@ -14,7 +14,7 @@ export const PostQuery = () => {
 
   const { getSession } = useAuth();
 
-  const [userId, setUserId] = useState<number | undefined>(undefined);
+  const [userData, setUserData] = useState<User | undefined>(undefined);
 
   const fetchUserDetails = async () => {
     try {
@@ -22,7 +22,7 @@ export const PostQuery = () => {
       const email = session.getIdToken().payload.email;
 
       const data = await getUser(email);
-      setUserId(data.data.userId);
+      setUserData(data.data);
     } catch (err) {
       console.error("Error fetching user details:", err);
     }
@@ -49,7 +49,7 @@ export const PostQuery = () => {
             <button
               className='btn btn-primary mt-3'
               onClick={async () => {
-                await postMessage(message, userId);
+                await postMessage(message, userData?.userId, userData?.email);
                 toast("Successfully posted query", {
                   type: "success",
                 });

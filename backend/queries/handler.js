@@ -103,6 +103,19 @@ app.post("/handle-customer-query", async (req, res) => {
       date: { S: new Date().toISOString() },
     },
   };
+
+  await fetch(
+    "https://cbtktu0xpb.execute-api.us-east-1.amazonaws.com/dev/email",
+    {
+      method: "post",
+      body: JSON.stringify({
+        email: body.customerEmail,
+        message:
+          "Agent is assigned to your query, view your queries to see updates",
+      }),
+    }
+  );
+
   try {
     await client.send(new PutItemCommand(params));
     res.status(200).json({ message: "Successfully inserted customer query" });

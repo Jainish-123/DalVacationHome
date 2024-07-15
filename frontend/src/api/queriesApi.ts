@@ -31,7 +31,7 @@ export interface Message {
  * Backend endpoint of serverless application
  */
 const QUERIES_ENDPOINT =
-  "https://y83o35anx0.execute-api.us-east-1.amazonaws.com/";
+  "https://yzoxyckcb4.execute-api.us-east-1.amazonaws.com/";
 
 /**
  * Author: Ketul Patel
@@ -63,11 +63,16 @@ export const getCustomerQueries = (customerId: number) => {
  * @param message message to insert in Pub/Sub queue
  * @returns
  */
-export const postMessage = (message: string, userId: number | undefined) => {
+export const postMessage = (
+  message: string,
+  userId: number | undefined,
+  userEmail?: string
+) => {
   return postRequest<any>(
     "https://us-central1-serverless-426912.cloudfunctions.net/post-customer-query",
     {
       customerId: userId,
+      customerEmail: userEmail,
       bookingId: "123",
       message: message,
     }

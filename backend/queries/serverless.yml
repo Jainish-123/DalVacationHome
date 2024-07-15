@@ -25,7 +25,7 @@ provider:
             - dynamodb:PutItem
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
-          Resource:
+          Resource: 
             - Fn::GetAtt: [QueriesTable, Arn]
   environment:
     QUERIES_TABLE: ${param:tableName}
@@ -37,7 +37,7 @@ functions:
     events:
       - httpApi: "*"
     timeout: 30
-    role: arn:aws:iam::326213751800:role/LabRole 
+    role: arn:aws:iam::381492004483:role/LabRole 
 
 resources:
   Resources:
