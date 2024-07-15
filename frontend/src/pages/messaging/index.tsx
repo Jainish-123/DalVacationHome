@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { createMessage, getMessages, Message } from "../../api/queriesApi";
 import { toast } from "react-toastify";
@@ -40,23 +40,24 @@ export const Messaging = () => {
     fetchUserDetails();
   }, []);
 
-  useEffect(() => {
-    const _init = async () => {
-      setMessages(
-        (await getMessages(params.customerId || "", params.agentId || "")).data
-      );
-    };
+  const fetchMessage = useCallback(async () => {
+    setMessages(
+      (await getMessages(params.customerId || "", params.agentId || "")).data
+    );
+  }, [params.agentId, params.customerId]);
 
+  useEffect(() => {
     if (params) {
-      _init();
+      fetchMessage();
     }
-  }, [params]);
+  }, [fetchMessage, params]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
+    await fetchMessage();
     if (newMessage.trim()) {
       const newMsg: Message = {
         message: newMessage,
@@ -65,11 +66,12 @@ export const Messaging = () => {
         owner: userId,
       };
 
-      createMessage(newMsg);
+      await createMessage(newMsg);
       setMessages([...messages, newMsg]);
       toast("Message send successfully", {
         type: "success",
       });
+      await fetchMessage();
       setNewMessage("");
       scrollToBottom();
     }
