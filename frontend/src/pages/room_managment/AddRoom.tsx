@@ -130,6 +130,15 @@ export const AddRoom = () => {
           onChange={handleChange}
         />
       </Form.Group>
+
+      <Button
+        className="my-3"
+        variant="primary"
+        type="submit"
+        onClick={handleRequest}
+      >
+        Add Room
+      </Button>
     </div>
   );
 };
