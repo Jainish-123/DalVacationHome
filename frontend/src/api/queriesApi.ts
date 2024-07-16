@@ -23,6 +23,7 @@ export interface Message {
   date?: string;
   agentId?: number;
   customerId?: number;
+  bookingId?: string;
   owner?: number;
 }
 
@@ -86,9 +87,19 @@ export const postMessage = (
  * @param agentId
  * @returns
  */
-export const getMessages = (customerId: string, agentId: string) => {
+export const getMessages = (
+  customerId: string,
+  agentId: string,
+  bookingId: string
+) => {
   return getRequest<Array<Message>>(
-    QUERIES_ENDPOINT + "messages/" + customerId + "/" + agentId
+    QUERIES_ENDPOINT +
+      "messages/" +
+      customerId +
+      "/" +
+      agentId +
+      "/" +
+      bookingId
   );
 };
 

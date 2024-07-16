@@ -65,7 +65,16 @@ export const CustomerQueries = () => {
             <h5 className='max-w-32'>{item.description || "-"}</h5>
             <h5 className='max-w-32'>{item.date || "-"}</h5>
             <h5 className='max-w-32'>{item.agentId || "-"}</h5>
-            <Link to={"/messaging/" + item.customerId + "/" + item.agentId}>
+            <Link
+              to={
+                "/messaging/" +
+                item.customerId +
+                "/" +
+                item.agentId +
+                "/" +
+                item.bookingId
+              }
+            >
               <h5 className='max-w-32 cursor-pointer underline'>Open Chat</h5>
             </Link>
           </div>

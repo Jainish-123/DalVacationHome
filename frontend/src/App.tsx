@@ -26,30 +26,33 @@ import RoomDetails from "./pages/room_managment/RoomDetails";
 
 function App() {
   return (
-    <div className="App">
+    <div className='App'>
       <Router>
         <AppNavbar />
         <Routes>
-          <Route path="/" Component={Home}></Route>
-          <Route path="/agent" Component={Agent}></Route>
-          <Route path="/customer-queries" Component={CustomerQueries} />
-          <Route path="/messaging/:customerId/:agentId" Component={Messaging} />
-          <Route path="/post-query" Component={PostQuery} />
-          <Route path="/agent-queries" Component={AgentQueries} />
-          <Route path="/login" Component={Login}></Route>
-          <Route path="/signup" Component={SignUp}></Route>
-          <Route path="/verify" Component={VerifyEmail}></Route>
-          <Route path="/sec-ques" Component={SecurityQuestions}></Route>
-          <Route path="/login-verify" Component={LoginVerify}></Route>
-          <Route path="/forgotpass" Component={ForgotPassword}></Route>
-          <Route path="/userprofile" Component={UserProfile}></Route>
-          <Route path="/room-managment" Component={RoomManagment}></Route>
-          <Route path="/room-managment/add" Component={AddRoom}></Route>
-          <Route path="*" Component={P404}></Route>
-          <Route path="/room/:roomId" element={<RoomDetails />} />
+          <Route path='/' Component={Home}></Route>
+          <Route path='/agent' Component={Agent}></Route>
+          <Route path='/customer-queries' Component={CustomerQueries} />
+          <Route
+            path='/messaging/:customerId/:agentId/:bookingId'
+            Component={Messaging}
+          />
+          <Route path='/post-query' Component={PostQuery} />
+          <Route path='/agent-queries' Component={AgentQueries} />
+          <Route path='/login' Component={Login}></Route>
+          <Route path='/signup' Component={SignUp}></Route>
+          <Route path='/verify' Component={VerifyEmail}></Route>
+          <Route path='/sec-ques' Component={SecurityQuestions}></Route>
+          <Route path='/login-verify' Component={LoginVerify}></Route>
+          <Route path='/forgotpass' Component={ForgotPassword}></Route>
+          <Route path='/userprofile' Component={UserProfile}></Route>
+          <Route path='/room-managment' Component={RoomManagment}></Route>
+          <Route path='/room-managment/add' Component={AddRoom}></Route>
+          <Route path='*' Component={P404}></Route>
+          <Route path='/room/:roomId' element={<RoomDetails />} />
         </Routes>
       </Router>
-      <ToastContainer position="top-right" theme="light" />
+      <ToastContainer position='top-right' theme='light' />
       <ChatbotLoader />
     </div>
   );
