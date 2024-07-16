@@ -5,6 +5,7 @@ import Room from "../../interfaces/Room";
 
 export const AddRoom = () => {
   const [room, setRoom] = useState<Room>({
+    room_id: "0",
     Agent: 0,
     Address: "",
     Amenities: [],

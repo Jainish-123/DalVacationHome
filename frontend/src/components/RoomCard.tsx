@@ -11,11 +11,12 @@ import Room from "../interfaces/Room";
 
 interface RoomCardProps {
   room: Room;
+  onClick: () => void;
 }
 
-const RoomCard: React.FC<RoomCardProps> = ({ room }) => {
+const RoomCard: React.FC<RoomCardProps> = ({ room, onClick }) => {
   return (
-    <Card>
+    <Card onClick={onClick} style={{ cursor: "pointer" }}>
       <CardMedia component="img" height="140" image={image} alt={room.room} />
       <CardContent>
         <Typography gutterBottom variant="h5" component="div">
