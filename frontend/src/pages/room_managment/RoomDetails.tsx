@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Room from "../../interfaces/Room";
-import { Card, CardMedia, CardContent, Typography, List, ListItem, ListItemText, Button } from "@mui/material";
+import { Card, CardMedia, CardContent, Typography, Button } from "@mui/material";
 import image from "../../images/room.jpg";
 import { getRoomById } from "../../api/roomManagementApis";
 

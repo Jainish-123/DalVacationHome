@@ -23,6 +23,7 @@ import RoomManagment from "./pages/room_managment/RoomManagment";
 import { AddRoom } from "./pages/room_managment/AddRoom";
 import Home from "./pages/Home";
 import RoomDetails from "./pages/room_managment/RoomDetails";
+import BookingHistory from "./pages/bookings/BookingHistory";
 
 function App() {
   return (
@@ -46,7 +47,8 @@ function App() {
           <Route path="/room-managment" Component={RoomManagment}></Route>
           <Route path="/room-managment/add" Component={AddRoom}></Route>
           <Route path="*" Component={P404}></Route>
-          <Route path="/room/:roomId" element={<RoomDetails />} />
+          <Route path="/room/:roomId" Component={RoomDetails} />
+          <Route path="/booking-history" Component={BookingHistory} />
         </Routes>
       </Router>
       <ToastContainer position="top-right" theme="light" />
