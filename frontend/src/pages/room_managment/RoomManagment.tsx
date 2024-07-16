@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Room from "../../interfaces/Room";
-import { getRooms } from "../../api/getRooms";
+import { getRooms } from "../../api/roomManagementApis";
 import { useNavigate } from "react-router-dom";
 
 export const RoomManagment = () => {
