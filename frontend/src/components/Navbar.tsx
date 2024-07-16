@@ -4,8 +4,11 @@ import { useAuth } from "../context/Auth";
 import { useNavigate } from "react-router-dom";
 
 const AppNavbar: React.FC = () => {
-  const { role, logout, status, getSession, setStatus } = useAuth();
+  const { logout, status, getSession, setStatus } = useAuth()
+  const [role, setRole] = React.useState<string>("");
   useEffect(() => {
+    const temp = localStorage.getItem("role");
+    setRole(temp || "user")
     getSession()
       .then((session) => {
         setStatus(true);

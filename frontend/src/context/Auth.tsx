@@ -76,8 +76,6 @@ const Auth: React.FC<{ children: ReactNode }> = ({ children }) => {
             setStatus(false);
             reject(err);
           } else {
-            const role = session.getIdToken().payload['cognito:groups']?.[0] || "user";
-            setRole(role);
             setStatus(true);
             resolve(session);
           }
