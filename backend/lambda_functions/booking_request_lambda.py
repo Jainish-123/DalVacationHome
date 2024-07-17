@@ -1,3 +1,12 @@
+import json
+import boto3
+import os
+import hashlib
+import uuid
+
+sqs = boto3.client('sqs')
+QUEUE_URL = os.environ.get('QUEUE_URL', 'https://sqs.us-east-1.amazonaws.com/123456789012/my-queue')
+
 def lambda_handler(event, context):
     try:
         if 'body' not in event:
@@ -29,26 +38,31 @@ def lambda_handler(event, context):
             MessageGroupId=message_group_id,
             MessageDeduplicationId=message_deduplication_id
         )
-        
-        # Add CORS headers to the response
-        headers = {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Headers': 'Content-Type',
-            'Access-Control-Allow-Methods': 'POST'
-        }
-        
         return {
             'statusCode': 200,
-            'headers': headers,
+              'isBase64Encoded': True,
+            'headers': {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': '*',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST',
+            
+            "Access-Control-Allow-Credentials": True
+            },
             'body': json.dumps({
-                'message': 'Booking details added to the queue',
-                'messageId': response['MessageId']
+            'message': 'Booking details added to the queue',
+            'messageId': response['MessageId']
             })
         }
     except ValueError as ve:
         return {
             'statusCode': 400,
-            'headers': headers,
+              'isBase64Encoded': True,
+            'headers': {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': '*',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST',
+            "Access-Control-Allow-Credentials":  True
+            },
             'body': json.dumps({
                 'error': str(ve)
             })
@@ -56,7 +70,13 @@ def lambda_handler(event, context):
     except Exception as e:
         return {
             'statusCode': 500,
-            'headers': headers,
+              'isBase64Encoded': True,
+            'headers': {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': '*',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST',
+            "Access-Control-Allow-Credentials":  True   
+            },
             'body': json.dumps({
                 'error': 'An error occurred',
                 'details': str(e)

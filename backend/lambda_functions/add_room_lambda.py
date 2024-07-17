@@ -18,7 +18,6 @@ def lambda_handler(event, context):
         beds = event['beds']
         room = event['room']
         price = event['price']
-        dcode = event['dcode']
     except KeyError as e:
         return {
             'statusCode': 400,
@@ -36,8 +35,7 @@ def lambda_handler(event, context):
         'Availability': availability,
         'Beds': beds,
         'room': room,
-        'Price': price,
-        'Dcode': dcode
+        'Price': price
     }
 
     try:
