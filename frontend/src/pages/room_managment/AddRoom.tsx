@@ -49,7 +49,7 @@ export const AddRoom = () => {
     console.log(room);
   };
   return (
-    <div>
+    <div className="container">
       <Form onSubmit={handleSubmit}>
         <Form.Group controlId="agent" className="row">
           <Form.Label className="col">Agent</Form.Label>
