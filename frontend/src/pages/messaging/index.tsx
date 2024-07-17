@@ -42,9 +42,15 @@ export const Messaging = () => {
 
   const fetchMessage = useCallback(async () => {
     setMessages(
-      (await getMessages(params.customerId || "", params.agentId || "")).data
+      (
+        await getMessages(
+          params.customerId || "",
+          params.agentId || "",
+          params.bookingId || ""
+        )
+      ).data
     );
-  }, [params.agentId, params.customerId]);
+  }, [params.agentId, params.bookingId, params.customerId]);
 
   useEffect(() => {
     if (params) {
@@ -63,6 +69,7 @@ export const Messaging = () => {
         message: newMessage,
         agentId: (params.agentId || 0) as number,
         customerId: (params.customerId || 0) as number,
+        bookingId: (params.bookingId || "") as string,
         owner: userId,
       };
 

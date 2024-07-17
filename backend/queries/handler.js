@@ -128,16 +128,19 @@ app.post("/handle-customer-query", async (req, res) => {
 /**
  * This endpoint fetches messages for given customerID and agentId
  */
-app.get("/messages/:customerId/:agentId", async (req, res) => {
+app.get("/messages/:customerId/:agentId/:bookingId", async (req, res) => {
   const customerId = req.params.customerId;
   const agentId = req.params.agentId;
+  const bookingId = req.params.bookingId;
 
   const params = {
     TableName: MESSAGES_TABLE,
-    FilterExpression: "customerId = :customerId AND agentId = :agentId",
+    FilterExpression:
+      "customerId = :customerId AND agentId = :agentId AND bookingId = :bookingId",
     ExpressionAttributeValues: {
       ":customerId": { N: `${customerId}` },
       ":agentId": { N: `${agentId}` },
+      ":bookingId": { N: `${bookingId}` },
     },
   };
 
