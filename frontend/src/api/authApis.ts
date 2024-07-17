@@ -52,41 +52,46 @@ export interface userPayload {
   role: string;
 }
 
+const API_URL = "https://ilybtngf56.execute-api.us-east-2.amazonaws.com/dev"
+
 export const checkAnswer = (payload: checkAnswerPayload) => {
+  console.log("payload", payload);
   return postRequest(
-    "https://ktynzoy843.execute-api.us-east-1.amazonaws.com/dev/auth/login",
+    API_URL + "/auth/login/secque",
     payload
   );
 };
 
 export const getOneQuestion = (id: number) => {
+  console.log("id", id);
   return getRequest<Que>(
-    `https://ktynzoy843.execute-api.us-east-1.amazonaws.com/dev/auth/login/secque?id=${id}`
+    API_URL +`/auth/login/secque?id=1`
   );
 };
 
 export const getQuestions = () => {
   return getRequest<Que>(
-    "https://ktynzoy843.execute-api.us-east-1.amazonaws.com/dev/auth/signup/secque"
-  );
+    API_URL + "/auth/signup/secque"  );
 };
 
 export const getUser = (email: string) => {
+  console.log("email", email);
   return getRequest<User>(
-    `https://ktynzoy843.execute-api.us-east-1.amazonaws.com/dev/auth/login?email=${email}`
+    API_URL + `/auth/login?email=${email}`
   );
 };
 
 export const postAnswers = (payload: AnswersPayload) => {
+  console.log("payload", payload);
   return postRequest<Answers>(
-    "https://ktynzoy843.execute-api.us-east-1.amazonaws.com/dev/auth/signup/secque",
+    API_URL + "/auth/signup/secque",
     payload
   );
 };
 
 export const postUser = (payload: userPayload) => {
+  console.log("payload", payload);
   return postRequest<postUserType>(
-    "https://ktynzoy843.execute-api.us-east-1.amazonaws.com/dev/auth/signup",
-    payload
+    API_URL + "/auth/signup",    payload
   );
 };

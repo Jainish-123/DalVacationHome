@@ -1,11 +1,12 @@
 import React, { useContext } from 'react';
 import { Col, Button, Row, Container, Card, Form } from "react-bootstrap";
 import { Link, useNavigate } from 'react-router-dom';
-import { AuthContext} from '../../context/Auth';
+import {Auth, AuthContext} from '../../context/Auth';
+import { toast } from 'react-toastify';
 
 export const Login = () => {
   const navigate = useNavigate();
-  const  { authenticate } = useContext(AuthContext)
+  const  { authenticate, logout } = useContext(AuthContext)
   interface User {
     email: string;
     password: string;
@@ -27,13 +28,15 @@ export const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try{
-      await authenticate(user.email, user.password);
+      const data = await authenticate(user.email, user.password);
+      await logout();
       navigate('/login-verify',{state:{
         email: user.email,
+        password: user.password
       }});
     }
     catch(err){
-      console.log(err);
+      toast.error('Invalid email or password');
     }
   };
 
