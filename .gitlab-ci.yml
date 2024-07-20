@@ -1,8 +1,3 @@
-image: docker:latest
-
-services:
-  - docker:dind
-
 stages:
   - setup
   - build
@@ -10,48 +5,44 @@ stages:
 
 variables:
   PROJECT_ID: $GCLOUD_PROJECT_ID
-  GOOGLE_APPLICATION_CREDENTIALS: $CI_PROJECT_DIR/gcloud-service-key.json
-  DOCKER_DRIVER: overlay2
-
-before_script:
-  # Install Google Cloud SDK
-  - apk --no-cache add curl python3 py3-crcmod bash
-  - curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-367.0.0-linux-x86_64.tar.gz
-  - tar -zxvf google-cloud-sdk-367.0.0-linux-x86_64.tar.gz
-  - ./google-cloud-sdk/install.sh -q
-  - ./google-cloud-sdk/bin/gcloud auth activate-service-account --key-file=$GCLOUD_SERVICE_KEY_FILE
-  - ./google-cloud-sdk/bin/gcloud config set project $PROJECT_ID
-  - ./google-cloud-sdk/bin/gcloud auth configure-docker
-
-setup:
-  stage: setup
-  script:
-    - ./google-cloud-sdk/bin/gcloud services enable containerregistry.googleapis.com
-    - ./google-cloud-sdk/bin/gcloud services enable run.googleapis.com
-    - ./google-cloud-sdk/bin/gcloud services enable cloudbuild.googleapis.com
-    - ./google-cloud-sdk/bin/gcloud services enable deploymentmanager.googleapis.com
+  GOOGLE_APPLICATION_CREDENTIALS: $GCLOUD_SERVICE_KEY_FILE
+  DOCKER_REGISTRY: docker.io
+  DOCKER_IMAGE_NAME: $DOCKER_USERNAME/serverless-frontend
 
 build:
+  image: docker:latest
   stage: build
+  dependencies:
+    - setup
+  services:
+    - docker:dind
   script:
     - cd frontend
-    - docker build -t gcr.io/$PROJECT_ID/serverless-frontend:latest .
-    - docker push gcr.io/$PROJECT_ID/serverless-frontend:latest
+    - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+    - docker build -t -t $DOCKER_IMAGE_NAME:latest .
+    - docker push $DOCKER_IMAGE_NAME:latest
   after_script:
     - docker system prune -f
     - docker image prune -f
+  only:
+    - dev    
+
 
 deploy:
+  image: google/cloud-sdk:slim
   stage: deploy
+  dependencies:
+    - build
   script:
     - cd infra
-    - ./google-cloud-sdk/bin/gcloud builds submit --region=us-central1 --config frontend_cloudbuild.yml
-    - ./google-cloud-sdk/bin/gcloud beta run services add-iam-policy-binding serverless-frontend --region=us-central1 --member=allUsers --role=roles/run.invoker
-  environment:
-    name: production
-    url: https://gcr.io/$PROJECT_ID/serverless-frontend
+    - gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+    - gcloud config set project $PROJECT_ID
+    - gcloud auth configure-docker
+    - gcloud services enable containerregistry.googleapis.com
+    - gcloud services enable run.googleapis.com
+    - gcloud services enable cloudbuild.googleapis.com
+    - gcloud services enable deploymentmanager.googleapis.com
+    - gcloud builds submit --region=us-central1 --config frontend_cloudbuild.yml
+    - gcloud beta run services add-iam-policy-binding serverless-frontend --region=us-central1 --member=allUsers --role=roles/run.invoker
   only:
-    - main
-  after_script:
-    - docker system prune -f
-    - docker image prune -f
+    - dev
