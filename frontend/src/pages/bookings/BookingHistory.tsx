@@ -21,12 +21,12 @@ const BookingHistory: React.FC = () => {
             // console.log("user : ", data);
             setCustomerId(data.data.userId);
 
-            // if (!customerId) {
-            //     console.error("User ID is undefined");
-            //     return;
-            // }
+            if (!customerId) {
+                console.error("User ID is undefined");
+                return;
+            }
 
-            const bookingsData = await getBookingsByUser(1);
+            const bookingsData = await getBookingsByUser(customerId);
             setBookings(bookingsData);
         } catch (err) {
             console.error("Error fetching user or booking details:", err);
