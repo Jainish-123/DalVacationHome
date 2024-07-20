@@ -1,0 +1,43 @@
+image: google/cloud-sdk:latest
+
+stages:
+  - setup
+  - build
+  - deploy
+
+variables:
+  PROJECT_ID: $GCLOUD_PROJECT_ID
+  GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcloud-service-key.json
+
+before_script:
+  - echo $GCLOUD_SERVICE_KEY | base64 --decode > $GOOGLE_APPLICATION_CREDENTIALS
+  - gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+  - gcloud config set project $PROJECT_ID
+  - gcloud auth configure-docker
+
+setup:
+  stage: setup
+  script:
+    - gcloud services enable containerregistry.googleapis.com
+    - gcloud services enable run.googleapis.com
+    - gcloud services enable cloudbuild.googleapis.com
+    - gcloud services enable deploymentmanager.googleapis.com
+
+build:
+  stage: build
+  script:
+    - cd frontend
+    - docker build -t gcr.io/$PROJECT_ID/serverless-frontend:latest .
+    - docker push gcr.io/$PROJECT_ID/serverless-frontend:latest
+
+deploy:
+  stage: deploy
+  script:
+    - cd infra
+    - gcloud builds submit --region=us-central1 --config frontend_cloudbuild.yml
+    - gcloud beta run services add-iam-policy-binding serverless-frontend --region=us-central1 --member=allUsers --role=roles/run.invoker
+  environment:
+    name: production
+    url: https://gcr.io/$PROJECT_ID/serverless-frontend
+  only:
+    - dev

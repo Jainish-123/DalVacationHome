@@ -41,6 +41,10 @@ const transformDynamoResponse = (items) => {
  */
 app.get("/agent-queries/:agentId", async (req, res) => {
   const agentId = req.params.agentId;
+  if (agentId === undefined) {
+    res.status(400).send("Bad Request");
+    return;
+  }
   const params = {
     TableName: QUERIES_TABLE,
     FilterExpression: "agentId = :agentId",
@@ -63,6 +67,11 @@ app.get("/agent-queries/:agentId", async (req, res) => {
  */
 app.get("/customer-queries/:customerId", async (req, res) => {
   const customerId = req.params.customerId;
+
+  if (customerId === undefined) {
+    res.status(400).send("Bad Request");
+    return;
+  }
   const params = {
     TableName: QUERIES_TABLE,
     FilterExpression: "customerId = :customerId",
@@ -88,6 +97,12 @@ app.get("/customer-queries/:customerId", async (req, res) => {
  */
 app.post("/handle-customer-query", async (req, res) => {
   const buffer = req.body;
+
+  if (buffer === undefined) {
+    res.status(400).send("Bad Request");
+    return;
+  }
+
   const jsonString = Buffer.from(buffer, "base64").toString("utf8");
   const body = JSON.parse(jsonString);
 
@@ -133,6 +148,15 @@ app.get("/messages/:customerId/:agentId/:bookingId", async (req, res) => {
   const agentId = req.params.agentId;
   const bookingId = req.params.bookingId;
 
+  if (
+    customerId === undefined ||
+    agentId === undefined ||
+    bookingId === undefined
+  ) {
+    res.status(400).send("Bad Request");
+    return;
+  }
+
   const params = {
     TableName: MESSAGES_TABLE,
     FilterExpression:
@@ -161,6 +185,19 @@ app.get("/messages/:customerId/:agentId/:bookingId", async (req, res) => {
  */
 app.post("/create-message", async (req, res) => {
   const body = req.body;
+
+  if (
+    body === undefined ||
+    body.customerId === undefined ||
+    body.agentId === undefined ||
+    body.owner === undefined ||
+    body.message === undefined ||
+    body.message === ""
+  ) {
+    res.status(400).send("Bad Request");
+    return;
+  }
+
   const params = {
     TableName: MESSAGES_TABLE,
     Item: {
