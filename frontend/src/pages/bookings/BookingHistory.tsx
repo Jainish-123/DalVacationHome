@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Button, Card, CardContent, TextField, Typography } from "@mui/material";
-import { getBookingsByUser } from "../../api/bookingApis";
+import { getBookingsByUser, storeFeedback } from "../../api/bookingApis";
 import Booking from "../../interfaces/Booking";
 import { useAuth } from "../../context/Auth";
 import { getUser } from "../../api/authApis";
@@ -37,14 +37,19 @@ const BookingHistory: React.FC = () => {
         fetchBookings();
     }, []);
 
-    const handleSendFeedback = async (bookingId: string) => {
+    const handleSendFeedback = async (room_id: string, bookingId: string) => {
         if (!feedback) {
             toast.error("Feedback cannot be empty");
             return;
         }
-        // await sendFeedback(bookingId, feedback);
-        setFeedback('');
-        toast.success("Feedback sent successfully");
+        try {
+            await storeFeedback(room_id, feedback, customerId, bookingId);
+            setFeedback('');
+            toast.success("Feedback sent successfully");
+        } catch (err) {
+            console.log(err);
+            toast.error("Feedback not sent");
+        }
     };
 
     return (
@@ -77,7 +82,7 @@ const BookingHistory: React.FC = () => {
                             <Button
                                 variant="contained"
                                 color="primary"
-                                onClick={() => handleSendFeedback(booking.booking_id)}
+                                onClick={() => handleSendFeedback(booking.room_id, booking.booking_id)}
                                 className="mt-2"
                             >
                                 Send

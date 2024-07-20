@@ -1,4 +1,6 @@
+import Feedback from "../interfaces/Feedback";
 import Room from "../interfaces/Room";
+import { postRequest } from "./axios";
 
 export const getRooms = async (): Promise<Room[]> => {
   return [
@@ -37,4 +39,16 @@ export const getRoomById = async (roomId: string): Promise<Room> => {
     Price: 100,
   };
   return data;
+};
+
+export const getFeedbackByRoomId = async (
+  roomId: string
+): Promise<{ data: Feedback[] }> => {
+  const response = await postRequest<{ data: Feedback[] }>(
+    "https://ilybtngf56.execute-api.us-east-2.amazonaws.com/dev/room-management/fetch-feedback",
+    {
+      room_id: roomId,
+    }
+  );
+  return response.data;
 };
