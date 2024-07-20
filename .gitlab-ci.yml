@@ -17,11 +17,8 @@ build:
   script:
     - cd frontend
     - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
-    - docker build -t -t $DOCKER_IMAGE_NAME:latest .
+    - docker build -t $DOCKER_IMAGE_NAME:latest .
     - docker push $DOCKER_IMAGE_NAME:latest
-  after_script:
-    - docker system prune -f
-    - docker image prune -f
   only:
     - dev
 
