@@ -1,4 +1,4 @@
-image: google/cloud-sdk:latest
+image: google/cloud-sdk:slim
 
 stages:
   - setup
