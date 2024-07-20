@@ -21,7 +21,10 @@ build:
     DOCKER_CLI_EXPERIMENTAL: enabled  
   script:
     - cd frontend
-    - docker info
+    - echo "Checking Docker Daemon"
+    - docker info || true
+    - echo "Checking Docker Daemon Connectivity"
+    - curl --unix-socket /var/run/docker.sock http://localhost/_ping || true
     - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
     - docker build -t $DOCKER_IMAGE_NAME:latest .
     - docker push $DOCKER_IMAGE_NAME:latest
