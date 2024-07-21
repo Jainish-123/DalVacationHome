@@ -46,7 +46,9 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Decode Google Cloud service account key
-        run: echo $GCLOUD_SERVICE_KEY | base64 --decode > $HOME/gcloud-service-key.json
+        run: |
+          echo $GCLOUD_SERVICE_KEY | base64 --decode > $HOME/gcloud-service-key.json
+          cat $HOME/gcloud-service-key.json
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v1
