@@ -55,5 +55,4 @@ jobs:
       - name: Deploy to Cloud Run
         run: |
           cd infra
-          gcloud builds submit --region=us-central1 --config
-          frontend_cloudbuild.yml
+          gcloud builds submit --region=us-central1 --config frontend_cloudbuild.yml
