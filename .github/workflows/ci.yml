@@ -48,12 +48,16 @@ jobs:
       - name: Decode Google Cloud service account key
         run: echo $GCLOUD_SERVICE_KEY | base64 --decode > $HOME/gcloud-service-key.json
 
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: $HOME/gcloud-service-key.json
+
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
           version: "latest"
           project_id: ${{ secrets.GCLOUD_PROJECT_ID }}
-          service_account_key: $HOME/gcloud-service-key.json
 
       - name: Configure Docker to use gcloud as a credential helper
         run: |
