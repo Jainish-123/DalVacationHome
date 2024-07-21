@@ -65,4 +65,3 @@ jobs:
         run: |
           cd infra
           gcloud builds submit --region=us-central1 --config frontend_cloudbuild.yml
-          gcloud beta run services add-iam-policy-binding serverless-frontend --region=us-central1 --member=allUsers --role=roles/run.invoker
