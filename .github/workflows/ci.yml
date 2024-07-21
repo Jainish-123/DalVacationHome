@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PROJECT_ID: ${{ secrets.GCLOUD_PROJECT_ID }}
-      GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCLOUD_SERVICE_KEY_FILE }}
+      GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCLOUD_SERVICE_KEY }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
