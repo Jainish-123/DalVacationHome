@@ -7,37 +7,36 @@ on:
       - dev
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    services:
-      docker:
-        image: docker:19.03.12
-        options: --privileged
-    env:
-      DOCKER_REGISTRY: docker.io
-      DOCKER_IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/serverless-frontend
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+  #   build:
+  #     runs-on: ubuntu-latest
+  #     services:
+  #       docker:
+  #         image: docker:19.03.12
+  #         options: --privileged
+  #     env:
+  #       DOCKER_REGISTRY: docker.io
+  #       DOCKER_IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/serverless-frontend
+  #     steps:
+  #       - name: Checkout repository
+  #         uses: actions/checkout@v2
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+  #       - name: Set up Docker Buildx
+  #         uses: docker/setup-buildx-action@v1
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+  #       - name: Log in to Docker Hub
+  #         uses: docker/login-action@v2
+  #         with:
+  #           username: ${{ secrets.DOCKER_USERNAME }}
+  #           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push Docker image
-        run: |
-          cd frontend
-          docker build -t $DOCKER_IMAGE_NAME:latest .
-          docker push $DOCKER_IMAGE_NAME:latest
+  #       - name: Build and push Docker image
+  #         run: |
+  #           cd frontend
+  #           docker build -t $DOCKER_IMAGE_NAME:latest .
+  #           docker push $DOCKER_IMAGE_NAME:latest
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build
     env:
       PROJECT_ID: ${{ secrets.GCLOUD_PROJECT_ID }}
       GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCLOUD_SERVICE_KEY_FILE }}
