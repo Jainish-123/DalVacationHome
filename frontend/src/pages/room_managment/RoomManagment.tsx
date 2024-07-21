@@ -25,7 +25,7 @@ const RoomManagment = () => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              agent: "Raj Wick",
+              agent: "krishna",
             }),
           }
         );
@@ -51,7 +51,10 @@ const RoomManagment = () => {
     navigate("/room-managment/add");
   };
   const handleDelete = async (room: string) => {};
-  const handleEdit = (room: string) => {};
+
+  const handleEdit = (room: Room) => {
+    navigate("/room-managment/update", { state: { room } });
+  };
 
   return (
     <div>
@@ -74,14 +77,14 @@ const RoomManagment = () => {
               <tr key={index}>
                 <td>{room.room}</td>
                 <td>{room.Address}</td>
-                <td>{room.Amenities.join(", ")}</td>
+                <td>{room.Amenities}</td>
                 <td>{room.Availability}</td>
                 <td>{room.Beds}</td>
                 <td>{room.Price}</td>
                 <td>
                   <button
                     className="btn btn-warning mx-1"
-                    onClick={() => handleEdit(room.room)}
+                    onClick={() => handleEdit(room)}
                   >
                     Edit
                   </button>
