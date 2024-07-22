@@ -13,6 +13,11 @@ functions.http("post_customer_queries", async (req, res) => {
     return;
   }
 
+  if (req.body === undefined) {
+    res.status(400).send("Bad Request");
+    return;
+  }
+
   const projectId = process.env.GOOGLE_CLOUD_PROJECT;
   const pubsub = new PubSub({ projectId });
 

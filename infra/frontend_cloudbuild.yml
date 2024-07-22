@@ -7,7 +7,7 @@
     - 'deploy'
     - 'serverless-frontend'
     - '--image'
-    - 'gcr.io/$PROJECT_ID/serverless-frontend:latest'
+    - 'docker.io/tudu123/serverless-frontend:latest'
     - '--region'
     - 'us-central1'
     - '--port'

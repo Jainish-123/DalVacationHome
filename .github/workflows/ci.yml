@@ -1,0 +1,58 @@
+name: CI/CD Pipeline
+"on":
+  push:
+    branches:
+      - main
+      - dev
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      docker:
+        image: "docker:19.03.12"
+        options: "--privileged"
+    env:
+      DOCKER_REGISTRY: docker.io
+      DOCKER_IMAGE_NAME: "${{ secrets.DOCKER_USERNAME }}/serverless-frontend"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: "${{ secrets.DOCKER_USERNAME }}"
+          password: "${{ secrets.DOCKER_PASSWORD }}"
+      - name: Build and push Docker image
+        run: |
+          cd frontend
+          docker build -t $DOCKER_IMAGE_NAME:latest .
+          docker push $DOCKER_IMAGE_NAME:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_ID: "${{ secrets.GCLOUD_PROJECT_ID }}"
+      GOOGLE_APPLICATION_CREDENTIALS: "${{ secrets.GCLOUD_SERVICE_KEY }}"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Cloud SDK
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: "${{ secrets.PROJECT_ID }}"
+          credentials_json: "${{ secrets.GCLOUD_SERVICE_KEY }}"
+      - name: Configure Docker to use gcloud as a credential helper
+        run: |
+          gcloud auth configure-docker
+      - name: Enable required Google Cloud APIs
+        run: |
+          gcloud services enable containerregistry.googleapis.com
+          gcloud services enable run.googleapis.com
+          gcloud services enable cloudbuild.googleapis.com
+          gcloud services enable deploymentmanager.googleapis.com
+      - name: Deploy to Cloud Run
+        run: |
+          cd infra
+          gcloud builds submit --region=us-central1 --config frontend_cloudbuild.yml
