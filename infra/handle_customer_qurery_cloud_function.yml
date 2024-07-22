@@ -1,9 +1,9 @@
 resources:
-  - name:  post-customer-query-2
+  - name:  post-customer-query
     type: gcp-types/cloudfunctions-v1:projects.locations.functions
     properties:
       parent: projects/serverless-426912/locations/us-central1
-      function:  post_customer_query-2
+      function:  post_customer_query
       entryPoint: post_customer_queries
       runtime: nodejs18
       httpsTrigger: {}
