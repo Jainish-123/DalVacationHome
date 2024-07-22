@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Form, Button } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export const AddRoom = () => {
+  const navigate = useNavigate();
   const [room, setRoom] = useState({
     agent: "",
     address: "",
@@ -30,6 +32,7 @@ export const AddRoom = () => {
         }
       );
       console.log(response.data);
+      navigate("/room-managment");
     } catch (error) {
       console.error(error);
     }
@@ -88,11 +91,14 @@ export const AddRoom = () => {
           <Form.Label className="col">Availability</Form.Label>
           <Form.Control
             className="col"
-            type="text"
+            as="select"
             name="availability"
             value={room.availability}
             onChange={handleChange}
-          />
+          >
+            <option value="Available">Available</option>
+            <option value="Not Available">Not Available</option>
+          </Form.Control>
         </Form.Group>
 
         <Form.Group controlId="beds" className="row">
