@@ -219,9 +219,9 @@ const RoomDetails: React.FC = () => {
                                 | number
                                 | boolean
                                 | React.ReactElement<
-                                    any,
-                                    string | React.JSXElementConstructor<any>
-                                  >
+                                  any,
+                                  string | React.JSXElementConstructor<any>
+                                >
                                 | Iterable<React.ReactNode>
                                 | React.ReactPortal
                                 | null
@@ -278,9 +278,10 @@ const RoomDetails: React.FC = () => {
                     <TableRow key={feedback.id}>
                       <TableCell>{feedback.feedback}</TableCell>
                       <TableCell>{feedback.score}</TableCell>
-                      <TableCell>
+                      <TableCell>{feedback.sentiment}</TableCell>
+                      {/* <TableCell>
                         {getSentimentIcon(feedback.sentiment)}
-                      </TableCell>
+                      </TableCell> */}
                     </TableRow>
                   ))}
                 </TableBody>
