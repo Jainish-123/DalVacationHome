@@ -6,7 +6,7 @@ Resources:
   CognitoUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
-      UserPoolName: testuserpool
+      UserPoolName: dalvacationuserpool
       AutoVerifiedAttributes:
         - email
       UsernameAttributes:
@@ -24,13 +24,13 @@ Resources:
   CognitoUserPoolDomain:
     Type: AWS::Cognito::UserPoolDomain
     Properties:
-      Domain: dalvacationtest
+      Domain: dalvacation1
       UserPoolId: !Ref CognitoUserPool
 
   CognitoUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
-      ClientName: testuserclient
+      ClientName: testuserclient1
       UserPoolId: !Ref CognitoUserPool
 
 # -----------------------------Lambda--------------------------#
@@ -102,7 +102,9 @@ Resources:
           import json
           import boto3
           from decimal import Decimal
+          import time
 
+          # Initialize DynamoDB resource
           dynamodb = boto3.resource('dynamodb')
           table = dynamodb.Table('user')
 
@@ -122,25 +124,38 @@ Resources:
                   return d
 
           def lambda_handler(event, context):
+              # Get email from query parameters
               email = event.get('queryStringParameters', {}).get('email', '')
               print(email)
               
               try:
+                  
+                  current_date_time = time.strftime("%m/%d/%y %H:%M:%S", time.gmtime())
+                  # Update the lastActive field with the current time
+                  table.update_item(
+                      Key={"email": email},
+                      UpdateExpression="SET lastActive = :val",
+                      ExpressionAttributeValues={":val": current_date_time}
+                  )
+                  # Retrieve item from DynamoDB table using email as the key
                   response = table.get_item(Key={"email": email})
                   print(response)
                   
+                  # Extract the item from the response
                   item = response.get('Item', {})
                   print(item)
-
+                  
+                  
+                  # Convert Decimal values to int
                   item = decimal_to_dict(item)
 
                   return {
                       'statusCode': 200,
                       'headers': {
-                          'Access-Control-Allow-Origin': '*',
-                          'Content-Type': 'application/json'
-                      },
-                      'body': json.dumps(item)
+                              'Access-Control-Allow-Origin': '*',
+                              'Content-Type': 'application/json'
+                          },
+                      'body': json.dumps(item)  # Convert dictionary to JSON string
                   }
 
               except Exception as e:
@@ -440,7 +455,7 @@ Resources:
   ApiGateway:
     Type: AWS::ApiGateway::RestApi
     Properties:
-      Name: dalvacationtest
+      Name: dalvacation
       Description: API Gateway for dalvacationtest
       EndpointConfiguration:
         Types:

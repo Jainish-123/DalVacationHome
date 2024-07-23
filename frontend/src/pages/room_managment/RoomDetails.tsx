@@ -194,7 +194,7 @@ const RoomDetails: React.FC = () => {
                           gap: 1,
                         }}
                       >
-                        {room.Amenities.map((amenity, index) => (
+                        {Array.isArray(room.Amenities) && room.Amenities.map((amenity: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined, index: React.Key | null | undefined) => (
                           <Chip
                             key={index}
                             label={amenity}
@@ -272,7 +272,6 @@ const RoomDetails: React.FC = () => {
                 </TableBody>
               </Table>
             </TableContainer>
-
           </Box>
         </Grid>
       </Grid>
