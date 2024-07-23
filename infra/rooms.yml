@@ -568,10 +568,10 @@ Resources:
   # BookingMethodOptions:
   #   Type: AWS::ApiGateway::Method
   #   Properties:
-  #     AuthorizationType: NONE
-  #     HttpMethod: OPTIONS
+  #     Authorithod: OPTIONS
   #     ResourceId: !Ref BookingResource
-  #     RestApiId: !Ref ApiGateway
+  #     RestApiId: !RezationType: NONE
+  #     HttpMef ApiGateway
   #     Integration:
   #       IntegrationResponses:
   #         - StatusCode: 200

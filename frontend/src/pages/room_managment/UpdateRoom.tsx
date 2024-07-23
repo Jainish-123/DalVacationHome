@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export const UpdateRoom = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { state } = location;
 
   const [room, setRoom] = useState(state);
@@ -40,9 +41,12 @@ export const UpdateRoom = () => {
       )
       .then((response) => {
         console.log("API response:", response.data);
+        alert("Update is successful");
+        navigate("/room-managment");
       })
       .catch((error) => {
         console.error("API error:", error);
+        alert("Update failed");
       });
   };
   return (

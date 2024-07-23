@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { getUser } from "../../api/authApis";
+import { Auth, useAuth } from "../../context/Auth";
 
 export const AddRoom = () => {
   const navigate = useNavigate();
@@ -14,6 +16,24 @@ export const AddRoom = () => {
     room: "",
     price: 0,
   });
+  const { getSession } = useAuth();
+  const [customerId, setCustomerId] = useState<number | undefined>(undefined);
+  const fetchUserDetails = async () => {
+    try {
+      const session = await getSession();
+      const email = session.getIdToken().payload.email;
+
+      const data = await getUser(email);
+      setCustomerId(data.data.userId);
+      room.agent = data.data.userId.toString();
+    } catch (err) {
+      console.error("Error fetching user details:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserDetails();
+  }, []);
 
   const handleRequest = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -31,7 +51,6 @@ export const AddRoom = () => {
           },
         }
       );
-      console.log(response.data);
       navigate("/room-managment");
     } catch (error) {
       console.error(error);
@@ -52,7 +71,7 @@ export const AddRoom = () => {
     console.log(room);
   };
   return (
-    <div className="container">
+    <div className="container my-5">
       <Form onSubmit={handleSubmit}>
         <Form.Group controlId="agent" className="row">
           <Form.Label className="col">Agent</Form.Label>
@@ -62,6 +81,7 @@ export const AddRoom = () => {
             name="agent"
             value={room.agent}
             onChange={handleChange}
+            disabled
           />
         </Form.Group>
 

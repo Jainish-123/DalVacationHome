@@ -1,6 +1,8 @@
 import { getRooms } from "../../api/roomManagementApis";
 import { useNavigate } from "react-router-dom";
 import React, { useState, useEffect } from "react";
+import { getUser } from "../../api/authApis";
+import { Auth, useAuth } from "../../context/Auth";
 type Room = {
   room: string;
   Address: string;
@@ -12,8 +14,24 @@ type Room = {
 };
 const RoomManagment = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
+  const { getSession } = useAuth();
+  const [customerId, setCustomerId] = useState<number | undefined>(undefined);
 
   useEffect(() => {
+    var agentid = "";
+    const fetchUserDetails = async () => {
+      try {
+        const session = await getSession();
+        const email = session.getIdToken().payload.email;
+
+        const data = await getUser(email);
+        setCustomerId(data.data.userId);
+        agentid = data.data.userId.toString();
+      } catch (err) {
+        console.error("Error fetching user details:", err);
+      }
+    };
+
     // Fetch the rooms data from the API
     const fetchRooms = async () => {
       try {
@@ -25,7 +43,7 @@ const RoomManagment = () => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              agent: "krishna",
+              agent: agentid,
             }),
           }
         );
@@ -43,8 +61,7 @@ const RoomManagment = () => {
         setRooms([]); // Ensure rooms is always an array
       }
     };
-
-    fetchRooms();
+    fetchUserDetails().then(() => fetchRooms());
   }, []);
   const navigate = useNavigate();
   const handleAddRoom = () => {
