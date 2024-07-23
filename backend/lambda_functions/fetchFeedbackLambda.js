@@ -1,6 +1,6 @@
 const AWS = require("aws-sdk");
 const dynamo = new AWS.DynamoDB.DocumentClient();
-const dynamoDBTableName = "feedback";
+const dynamoDBTableName = "Feedback";
 
 exports.handler = async (event) => {
   let response;

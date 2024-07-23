@@ -17,16 +17,16 @@ const BookingHistory: React.FC = () => {
             const session = await getSession();
             const email = session.getIdToken().payload.email;
             // console.log("email : ", email);
-            const data = await getUser(email);
+            // const data = await getUser(email);
             // console.log("user : ", data);
-            setCustomerId(data.data.userId);
+            // setCustomerId(data.data.userId);
 
-            if (!customerId) {
-                console.error("User ID is undefined");
-                return;
-            }
+            // if (!customerId) {
+            //     console.error("User ID is undefined");
+            //     return;
+            // }
 
-            const bookingsData = await getBookingsByUser(customerId);
+            const bookingsData = await getBookingsByUser(email);
             setBookings(bookingsData);
         } catch (err) {
             console.error("Error fetching user or booking details:", err);
@@ -58,16 +58,16 @@ const BookingHistory: React.FC = () => {
                 Booking History
             </Typography>
             {bookings.map((booking) => (
-                <Card key={booking.booking_id} className="my-4">
+                <Card key={booking.bookingid} className="my-4">
                     <CardContent>
                         <Typography variant="h5" component="div">
-                            Room: {booking.room_name}
+                            Room: {booking.room}
                         </Typography>
                         <Typography variant="body1" color="text.secondary">
-                            Booking Date: {new Date(booking.booking_date).toLocaleDateString()}
+                            Booking Date: {new Date(booking.date).toLocaleDateString()}
                         </Typography>
                         <Typography variant="body1" color="text.secondary">
-                            Booking ID: {booking.booking_id}
+                            Booking ID: {booking.bookingid}
                         </Typography>
                         <div className="mt-4">
                             <TextField
@@ -82,7 +82,7 @@ const BookingHistory: React.FC = () => {
                             <Button
                                 variant="contained"
                                 color="primary"
-                                onClick={() => handleSendFeedback(booking.room, booking.booking_id)}
+                                onClick={() => handleSendFeedback(booking.room, booking.bookingid)}
                                 className="mt-2"
                             >
                                 Send
