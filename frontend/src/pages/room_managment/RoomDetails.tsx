@@ -111,11 +111,7 @@ const RoomDetails: React.FC = () => {
             Amenities:
           </Typography>
           <div className="text-center">
-            {room.Amenities.map((amenity, index) => (
-              <div key={index} className="text-lg">
-                {amenity}
-              </div>
-            ))}
+            {room.Amenities}
           </div>
           <Button
             variant="contained"

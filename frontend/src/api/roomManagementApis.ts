@@ -1,44 +1,35 @@
 import Feedback from "../interfaces/Feedback";
 import Room from "../interfaces/Room";
-import { postRequest } from "./axios";
+import { getRequest, postRequest } from "./axios";
 
 export const getRooms = async (): Promise<Room[]> => {
-  return [
-    {
-      room_id: "1",
-      Agent: 1,
-      Address: "123 Main St",
-      Amenities: ["Wifi", "Parking"],
-      Availability: "Available",
-      Beds: 4,
-      room: "VR-3366",
-      Price: 100,
-    },
-    {
-      room_id: "2",
-      Agent: 2,
-      Address: "456 Elm St",
-      Amenities: ["Pool", "Gym"],
-      Availability: "Available",
-      Beds: 6,
-      room: "VR-3367",
-      Price: 170,
-    },
-  ];
+  const response = await getRequest<{ rooms: Room[] }>(
+    `https://p2r4cn9vyj.execute-api.us-east-1.amazonaws.com/dev/room/avaliable`
+  );
+
+  const rooms: Room[] = response.data.rooms.map((room) => ({
+    Address: room.Address,
+    Availability:
+      room.Availability === "Avaliable" ? "Available" : room.Availability,
+    Amenities: room.Amenities,
+    Price: parseFloat(room.Price.toString()),
+    Agent: room.Agent,
+    Beds: parseInt(room.Beds.toString(), 10),
+    room: room.room,
+  }));
+
+  return rooms;
 };
 
 export const getRoomById = async (roomId: string): Promise<Room> => {
-  const data = {
-    room_id: "1",
-    Agent: 1,
-    Address: "123 Main St",
-    Amenities: ["Wifi", "Parking"],
-    Availability: "Available",
-    Beds: 4,
-    room: "VR-3366",
-    Price: 100,
-  };
-  return data;
+  const response = await postRequest<Room>(
+    "https://p2r4cn9vyj.execute-api.us-east-1.amazonaws.com/dev/room/get_room",
+    {
+      room: roomId,
+    }
+  );
+
+  return response.data;
 };
 
 export const getFeedbackByRoomId = async (
@@ -47,7 +38,7 @@ export const getFeedbackByRoomId = async (
   const response = await postRequest<{ data: Feedback[] }>(
     "https://ilybtngf56.execute-api.us-east-2.amazonaws.com/dev/room-management/fetch-feedback",
     {
-      room_id: roomId,
+      room: roomId,
     }
   );
   return response.data;
