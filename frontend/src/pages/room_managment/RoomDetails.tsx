@@ -264,29 +264,6 @@ const RoomDetails: React.FC = () => {
             <Typography variant="h5" gutterBottom>
               Feedback
             </Typography>
-            <Box sx={{ mt: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Add a Review
-              </Typography>
-              <TextField
-                fullWidth
-                variant="outlined"
-                multiline
-                rows={4}
-                value={newFeedback}
-                onChange={(e) => setNewFeedback(e.target.value)}
-                placeholder="Write your review here..."
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={handleAddReview}>
-                        <AddIcon />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </Box>
             <TableContainer component={Paper}>
               <Table>
                 <TableHead>
