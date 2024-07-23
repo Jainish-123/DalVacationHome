@@ -36,7 +36,7 @@ export const getFeedbackByRoomId = async (
   roomId: string
 ): Promise<{ data: Feedback[] }> => {
   const response = await postRequest<{ data: Feedback[] }>(
-    "https://ilybtngf56.execute-api.us-east-2.amazonaws.com/dev/room-management/fetch-feedback",
+    "https://r9haxo9w40.execute-api.us-east-1.amazonaws.com/dev/room-management/fetch-feedback",
     {
       room: roomId,
     }

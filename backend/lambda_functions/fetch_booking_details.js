@@ -127,7 +127,7 @@ async function BookingInfo(event) {
   }
 
   const params = {
-    TableName: "Bookings",
+    TableName: "booking",
     Key: { bookingRef: bookingReferenceCode },
   };
 
@@ -156,14 +156,14 @@ async function BookingInfo(event) {
             fulfillmentState: "Fulfilled",
             message: {
               contentType: "PlainText",
-              content: `Your room number is ${bookingDetails.roomNo} and your stay duration is ${bookingDetails.stayDuration} days.`,
+              content: `Your room number is ${bookingDetails.room} and your stay duration is ${bookingDetails.stayDuration} days.`,
             },
           },
         },
         messages: [
           {
             contentType: "PlainText",
-            content: `Your room number is ${bookingDetails.roomNo} and your stay duration is ${bookingDetails.stayDuration} days.`,
+            content: `Your room number is ${bookingDetails.room} and your stay duration is ${bookingDetails.stayDuration} days.`,
           },
         ],
       };
