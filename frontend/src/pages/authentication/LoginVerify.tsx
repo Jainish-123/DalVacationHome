@@ -11,7 +11,7 @@ import {toast} from 'react-toastify';
 
 
 const LoginVerify: React.FC = () => {
-    const {setRole, setStatus} = useAuth();
+    const {setRole, setStatus, authenticate} = useAuth();
     const [question, setQuestion] = useState('');
     const [randomString, setRandomString] = useState('');
     const [userDetails, setUserDetails] = useState<string>('');
@@ -20,6 +20,7 @@ const LoginVerify: React.FC = () => {
     const location = useLocation();
     const [id, setId] = useState<number>(0);
     const email = location.state?.email || '';
+    const password = location.state?.password || '';
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -76,6 +77,7 @@ const LoginVerify: React.FC = () => {
             decrypted_text: decipher,
         }) as { data: { statusCode: number } };
         if (response.data.statusCode === 200) {
+            await authenticate(email, password);
             console.log('Login successful');
             setRole(userDetails);
             setStatus(true);
@@ -87,7 +89,7 @@ const LoginVerify: React.FC = () => {
         }
         else 
         {
-            console.log('Login failed');
+            toast.error('Login failed');
         }
     }
 

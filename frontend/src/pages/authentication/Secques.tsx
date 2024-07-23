@@ -54,6 +54,15 @@ const SecurityQuestions: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      console.log({
+        email: email,
+        queAns: [
+          { queId: selectedQuestions[0].queId, answer: selectedQuestions[0].answer },
+          { queId: selectedQuestions[1].queId, answer: selectedQuestions[1].answer }
+        ],
+        key: cipherKey
+      });
+      
       await postAnswers({
         email: email,
         queAns: [
