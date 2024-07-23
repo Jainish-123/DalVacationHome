@@ -1,20 +1,24 @@
 import json
 import boto3
 from botocore.exceptions import ClientError
+from decimal import Decimal
 
-# Initialize the DynamoDB resource
 dynamodb = boto3.resource('dynamodb')
-
-# Name of the DynamoDB table
 TABLE_NAME = 'rooms'
 
+# Custom encoder to convert Decimal to float
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return float(obj)
+        return super(DecimalEncoder, self).default(obj)
+
 def lambda_handler(event, context):
-    # Parse the body to get the input parameters
     try:
+        # Parse input parameters
         body = json.loads(event['body'])
-        agent = body['agent']
-        room = body['room']
-    except KeyError as e:
+        room_number = body['room']
+    except (KeyError, json.JSONDecodeError):
         return {
             'statusCode': 400,
             'headers': {
@@ -23,31 +27,19 @@ def lambda_handler(event, context):
                 'Access-Control-Allow-Methods': 'OPTIONS,POST',
                 "Access-Control-Allow-Credentials": True
             },
-            'body': json.dumps(f'Missing parameter: {e}')
-        }
-    except json.JSONDecodeError:
-        return {
-            'statusCode': 400,
-            'headers': {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': '*',
-                'Access-Control-Allow-Methods': 'OPTIONS,POST',
-                "Access-Control-Allow-Credentials": True
-            },
-            'body': json.dumps('Invalid JSON in body.')
+            'body': json.dumps('Missing or invalid input parameters.')
         }
 
     # Reference the DynamoDB table
     table = dynamodb.Table(TABLE_NAME)
 
     try:
-        # Delete item from DynamoDB table
-        response = table.delete_item(
-            Key={
-                'room': room
-            }
+        # Get item from DynamoDB table
+        response = table.get_item(
+            Key={'room': room_number}
         )
-        if 'Attributes' in response:
+
+        if 'Item' in response:
             return {
                 'statusCode': 200,
                 'headers': {
@@ -56,7 +48,7 @@ def lambda_handler(event, context):
                     'Access-Control-Allow-Methods': 'OPTIONS,POST',
                     "Access-Control-Allow-Credentials": True
                 },
-                'body': json.dumps(f'Room {room} removed successfully.')
+                'body': json.dumps(response['Item'], cls=DecimalEncoder)
             }
         else:
             return {
@@ -67,7 +59,7 @@ def lambda_handler(event, context):
                     'Access-Control-Allow-Methods': 'OPTIONS,POST',
                     "Access-Control-Allow-Credentials": True
                 },
-                'body': json.dumps(f'Room {room} not found.')
+                'body': json.dumps(f'Room {room_number} not found.')
             }
     except ClientError as e:
         return {
@@ -78,5 +70,5 @@ def lambda_handler(event, context):
                 'Access-Control-Allow-Methods': 'OPTIONS,POST',
                 "Access-Control-Allow-Credentials": True
             },
-            'body': json.dumps(f'Error removing room: {e.response["Error"]["Message"]}')
+            'body': json.dumps(f'Error getting room: {e.response["Error"]["Message"]}')
         }

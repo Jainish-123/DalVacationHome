@@ -9,46 +9,53 @@ dynamodb = boto3.resource('dynamodb')
 TABLE_NAME = 'rooms'
 
 def lambda_handler(event, context):
-    # Parse input parameters
+    # Parse the body to get the input parameters
     try:
-        room = event['room']
+        body = json.loads(event['body'])
+        room = body['room']
         update_expression = []
         expression_attribute_names = {}
         expression_attribute_values = {}
         
-        if 'agent' in event:
+        if 'agent' in body:
             update_expression.append("#a = :agent")
             expression_attribute_names['#a'] = "Agent"
-            expression_attribute_values[':agent'] = event['agent']
+            expression_attribute_values[':agent'] = body['agent']
         
-        if 'address' in event:
+        if 'address' in body:
             update_expression.append("#ad = :address")
             expression_attribute_names['#ad'] = "Address"
-            expression_attribute_values[':address'] = event['address']
+            expression_attribute_values[':address'] = body['address']
         
-        if 'amenities' in event:
+        if 'amenities' in body:
             update_expression.append("#am = :amenities")
             expression_attribute_names['#am'] = "Amenities"
-            expression_attribute_values[':amenities'] = event['amenities']
+            expression_attribute_values[':amenities'] = body['amenities']
         
-        if 'availability' in event:
+        if 'availability' in body:
             update_expression.append("#av = :availability")
             expression_attribute_names['#av'] = "Availability"
-            expression_attribute_values[':availability'] = event['availability']
+            expression_attribute_values[':availability'] = body['availability']
         
-        if 'beds' in event:
+        if 'beds' in body:
             update_expression.append("#b = :beds")
             expression_attribute_names['#b'] = "Beds"
-            expression_attribute_values[':beds'] = event['beds']
+            expression_attribute_values[':beds'] = body['beds']
         
-        if 'price' in event:
+        if 'price' in body:
             update_expression.append("#p = :price")
             expression_attribute_names['#p'] = "Price"
-            expression_attribute_values[':price'] = event['price']
+            expression_attribute_values[':price'] = body['price']
         
         if not update_expression:
             return {
                 'statusCode': 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
+                    'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                    'Access-Control-Allow-Credentials': True
+                },
                 'body': json.dumps('No fields to update.')
             }
 
@@ -56,7 +63,24 @@ def lambda_handler(event, context):
     except KeyError as e:
         return {
             'statusCode': 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': '*',
+                'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                'Access-Control-Allow-Credentials': True
+            },
             'body': json.dumps(f'Missing parameter: {e}')
+        }
+    except json.JSONDecodeError:
+        return {
+            'statusCode': 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': '*',
+                'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                'Access-Control-Allow-Credentials': True
+            },
+            'body': json.dumps('Invalid JSON in body.')
         }
 
     # Reference the DynamoDB table
@@ -76,15 +100,33 @@ def lambda_handler(event, context):
         )
         return {
             'statusCode': 200,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': '*',
+                'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                'Access-Control-Allow-Credentials': True
+            },
             'body': json.dumps(f'Room {room} updated successfully. {response["Attributes"]}')
         }
     except ClientError as e:
         if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
             return {
                 'statusCode': 404,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
+                    'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                    'Access-Control-Allow-Credentials': True
+                },
                 'body': json.dumps(f'Room {room} not found.')
             }
         return {
             'statusCode': 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': '*',
+                'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                'Access-Control-Allow-Credentials': True
+            },
             'body': json.dumps(f'Error updating room: {e.response["Error"]["Message"]}')
         }

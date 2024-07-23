@@ -1,6 +1,7 @@
 import json
 import boto3
 import os
+from datetime import datetime
 
 # Initialize boto3 clients
 dynamodb = boto3.resource('dynamodb')
@@ -45,13 +46,17 @@ def lambda_handler(event, context):
                 ExpressionAttributeValues={':a': 'Not Available'}
             )
             
+            # Get current date
+            current_date = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+            
             # Add booking information to the bookings table
             bookings_table.put_item(
                 Item={
                     'bookingid': booking_id,
                     'email': email,
                     'room_id': room_id,
-                    'status': 'Confirmed'
+                    'status': 'Confirmed',
+                    'date': current_date
                 }
             )
             
@@ -59,7 +64,8 @@ def lambda_handler(event, context):
             subject = "Booking Confirmation"
             body_text = (f"Dear Customer,\n\n"
                          f"Your booking for room {room_id} has been confirmed.\n"
-                         f"Booking ID: {booking_id}\n\n"
+                         f"Booking ID: {booking_id}\n"
+                         f"Date: {current_date}\n\n"
                          f"Thank you for choosing our service.\n")
             
             # Publish to SNS
@@ -90,4 +96,3 @@ def lambda_handler(event, context):
         'statusCode': 200,
         'body': json.dumps('Booking confirmation sent successfully.')
     }
-
