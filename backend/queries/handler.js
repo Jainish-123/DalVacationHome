@@ -106,14 +106,29 @@ app.post("/handle-customer-query", async (req, res) => {
   const jsonString = Buffer.from(buffer, "base64").toString("utf8");
   const body = JSON.parse(jsonString);
 
-  //TODO randomly select agent and assign
+  const bookingId = body.bookingId;
+
+  const response = await (
+    await fetch(
+      "https://p2r4cn9vyj.execute-api.us-east-1.amazonaws.com/dev/booking/get_agent",
+      {
+        method: "post",
+        body: JSON.stringify({
+          booking_id: bookingId,
+        }),
+      }
+    )
+  ).json();
+
+  const agentId = response.agent;
+
   const params = {
     TableName: QUERIES_TABLE,
     Item: {
       id: { S: uuid4() },
       customerId: { N: `${body.customerId}` },
-      agentId: { N: `562339209483406398` },
-      bookingId: { S: body.bookingId },
+      agentId: { N: agentId },
+      bookingId: { S: bookingId },
       description: { S: body.message },
       date: { S: new Date().toISOString() },
     },
