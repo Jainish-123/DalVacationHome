@@ -19,16 +19,19 @@ export const UpdateRoom = () => {
     }));
   };
 
-  console.log("Received values:", room);
-
+  // console.log("Received values:", room);
   const roomData = Object.entries(room.room);
 
   const handleUpdateRoom = () => {
-    console.log("Updated values:", room);
+    console.log("Updated values:", room.room);
+
     axios
       .post(
         "https://p2r4cn9vyj.execute-api.us-east-1.amazonaws.com/dev/room/update",
-        room,
+        roomData.reduce((acc: any, [key, value]) => {
+          acc[key.toLowerCase()] = value;
+          return acc;
+        }, {}),
         {
           headers: {
             "Content-Type": "application/json",

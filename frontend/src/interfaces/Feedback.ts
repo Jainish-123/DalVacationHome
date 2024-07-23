@@ -5,5 +5,5 @@ export default interface Feedback {
   score: number;
   feedback: string;
   magnitude: number;
-  room_id: string;
+  room: string;
 }

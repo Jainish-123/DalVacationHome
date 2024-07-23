@@ -50,7 +50,44 @@ const RoomManagment = () => {
   const handleAddRoom = () => {
     navigate("/room-managment/add");
   };
-  const handleDelete = async (room: string) => {};
+  const handleDelete = async (room: string) => {
+    try {
+      const confirmed = window.confirm(
+        "Are you sure you want to delete this room?"
+      );
+      if (!confirmed) {
+        return;
+      }
+
+      const response = await fetch(
+        "https://p2r4cn9vyj.execute-api.us-east-1.amazonaws.com/dev/room/delete",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            agent: "krishna",
+            room: room,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Delete the room from the local state
+        setRooms((prevRooms) => prevRooms.filter((r) => r.room !== room));
+        window.location.reload();
+      } else {
+        console.error("Failed to delete room:", data);
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("Error deleting room:", error);
+      window.location.reload();
+    }
+  };
 
   const handleEdit = (room: Room) => {
     navigate("/room-managment/update", { state: { room } });

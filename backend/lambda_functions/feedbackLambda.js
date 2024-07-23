@@ -23,7 +23,7 @@ exports.handler = async (event) => {
 
     const customerId = body.customerId;
     const feedback = body.feedback;
-    const room_id = body.room_id;
+    const room = body.room;
     const bookingId = body.bookingId;
 
     const document = {
@@ -63,7 +63,7 @@ exports.handler = async (event) => {
           customerId: customerId,
           bookingId: bookingId,
           feedback: feedback,
-          room_id: room_id,
+          room: room,
           sentiment: sentimentLabel,
           score: sentiment.score,
           magnitude: sentiment.magnitude,

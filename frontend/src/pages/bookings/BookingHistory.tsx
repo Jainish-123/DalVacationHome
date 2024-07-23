@@ -37,13 +37,13 @@ const BookingHistory: React.FC = () => {
         fetchBookings();
     }, []);
 
-    const handleSendFeedback = async (room_id: string, bookingId: string) => {
+    const handleSendFeedback = async (room: string, bookingId: string) => {
         if (!feedback) {
             toast.error("Feedback cannot be empty");
             return;
         }
         try {
-            await storeFeedback(room_id, feedback, customerId, bookingId);
+            await storeFeedback(room, feedback, customerId, bookingId);
             setFeedback('');
             toast.success("Feedback sent successfully");
         } catch (err) {
@@ -82,7 +82,7 @@ const BookingHistory: React.FC = () => {
                             <Button
                                 variant="contained"
                                 color="primary"
-                                onClick={() => handleSendFeedback(booking.room_id, booking.booking_id)}
+                                onClick={() => handleSendFeedback(booking.room, booking.booking_id)}
                                 className="mt-2"
                             >
                                 Send
