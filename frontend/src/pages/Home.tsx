@@ -12,20 +12,25 @@ const Home: React.FC = () => {
   useEffect(() => {
     const getRoomList = async () => {
       const res = await getRooms();
-      setRooms(res);
+      if (Array.isArray(res)) {
+        setRooms(res);
+        console.log(rooms);
+      } else {
+        setRooms([]);
+      }
     };
     getRoomList();
   }, []);
 
-  const handleCardClick = (roomId: string) => {
-    navigate(`/room/${roomId}`);
+  const handleCardClick = (room: string) => {
+    navigate(`/room/${room}`);
   };
 
   return (
     <Grid container spacing={2}>
-      {rooms.map((room) => (
-        <Grid item xs={12} sm={6} md={4} key={room.room_id}>
-          <RoomCard room={room} onClick={() => handleCardClick(room.room_id)} />
+      {rooms.map((Room) => (
+        <Grid item xs={12} sm={6} md={4} key={Room.room}>
+          <RoomCard room={Room} onClick={() => handleCardClick(Room.room)} />
         </Grid>
       ))}
     </Grid>

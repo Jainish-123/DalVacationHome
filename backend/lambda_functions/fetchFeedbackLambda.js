@@ -6,17 +6,17 @@ exports.handler = async (event) => {
   let response;
   if (event.httpMethod === "POST") {
     const requestBody = JSON.parse(event.body);
-    response = await fetchFeedback(requestBody.room_id);
+    response = await fetchFeedback(requestBody.room);
   }
   return response;
 };
 
-async function fetchFeedback(room_id) {
+async function fetchFeedback(room) {
   const params = {
     TableName: dynamoDBTableName,
-    FilterExpression: "room_id = :room_id",
+    FilterExpression: "room = :room",
     ExpressionAttributeValues: {
-      ":room_id": room_id,
+      ":room": room,
     },
   };
 
