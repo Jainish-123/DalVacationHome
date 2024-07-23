@@ -36,13 +36,28 @@ import { postReview } from "../../api/reviewApis";
 
 const RoomDetails: React.FC = () => {
   const { roomId } = useParams<{ roomId: string }>();
-  const {getSession} = useAuth();
+  const { getSession } = useAuth();
   const navigate = useNavigate();
   const [room, setRoom] = useState<Room | null>(null);
+  const [mail, setMail] = useState<string | null>(null);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [newFeedback, setNewFeedback] = useState("");
 
   useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const session = await getSession();
+        const email = session.getIdToken().payload.email;
+        setMail(email);
+
+        // const data = await getUser(email);
+        // // setCustomerId(data.data.userId);
+        // // agentid = data.data.userId.toString();
+      } catch (err) {
+        console.error("Error fetching user details:", err);
+      }
+    };
+
     const fetchRoomDetails = async () => {
       if (!roomId) {
         navigate("/");
@@ -66,12 +81,14 @@ const RoomDetails: React.FC = () => {
 
     fetchRoomDetails();
     fetchFeedbacks();
+    fetchUserDetails();
   }, [roomId, navigate]);
 
   const handleBookNow = async () => {
     const requestBody = {
-      email: "krishnavaibhav.y@gmail.com",
-      room_id: "103",
+      email: mail,
+      room: roomId,
+      stayDuration: 1,
     };
 
     try {
@@ -103,14 +120,14 @@ const RoomDetails: React.FC = () => {
     if (!newFeedback.trim()) return;
     const data = await getSession();
     const email = data.getIdToken().payload.email;
-    const response=await getUser(email);
+    const response = await getUser(email);
     console.log(response);
     const requestBody = {
       review: newFeedback,
       userId: response.data.userId,
       roomId: roomId ?? "",
     };
-      console.log(requestBody);
+    console.log(requestBody);
     try {
       await postReview(requestBody);
     } catch (error) {
@@ -194,14 +211,31 @@ const RoomDetails: React.FC = () => {
                           gap: 1,
                         }}
                       >
-                        {Array.isArray(room.Amenities) && room.Amenities.map((amenity: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined, index: React.Key | null | undefined) => (
-                          <Chip
-                            key={index}
-                            label={amenity}
-                            variant="outlined"
-                            sx={{ m: 1 }}
-                          />
-                        ))}
+                        {Array.isArray(room.Amenities) &&
+                          room.Amenities.map(
+                            (
+                              amenity:
+                                | string
+                                | number
+                                | boolean
+                                | React.ReactElement<
+                                    any,
+                                    string | React.JSXElementConstructor<any>
+                                  >
+                                | Iterable<React.ReactNode>
+                                | React.ReactPortal
+                                | null
+                                | undefined,
+                              index: React.Key | null | undefined
+                            ) => (
+                              <Chip
+                                key={index}
+                                label={amenity}
+                                variant="outlined"
+                                sx={{ m: 1 }}
+                              />
+                            )
+                          )}
                       </Box>
                     </Grid>
                   </Grid>
@@ -266,7 +300,9 @@ const RoomDetails: React.FC = () => {
                     <TableRow key={feedback.id}>
                       <TableCell>{feedback.feedback}</TableCell>
                       <TableCell>{feedback.score}</TableCell>
-                      <TableCell>{getSentimentIcon(feedback.sentiment)}</TableCell>
+                      <TableCell>
+                        {getSentimentIcon(feedback.sentiment)}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
