@@ -244,6 +244,7 @@ const RoomDetails: React.FC = () => {
                     color="primary"
                     sx={{ mt: 3 }}
                     onClick={handleBookNow}
+                    disabled={room.Availability !== "Available"}
                   >
                     Book Now
                   </Button>
