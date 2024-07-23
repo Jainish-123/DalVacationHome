@@ -25,6 +25,7 @@ import Home from "./pages/Home";
 import RoomDetails from "./pages/room_managment/RoomDetails";
 import BookingHistory from "./pages/bookings/BookingHistory";
 import UpdateRoom from "./pages/room_managment/UpdateRoom";
+import AnalyticsPage from "./pages/analytics/AnalyticsPage";
 
 function App() {
   return (
@@ -53,6 +54,7 @@ function App() {
           <Route path="/room-managment/update" Component={UpdateRoom} />
           <Route path="/room/:roomId" Component={RoomDetails} />
           <Route path="/booking-history" Component={BookingHistory} />
+          <Route path="/analysis" Component={AnalyticsPage} />
           <Route path="*" Component={P404}></Route>
         </Routes>
       </Router>

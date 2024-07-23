@@ -52,7 +52,7 @@ export interface userPayload {
   role: string;
 }
 
-const API_URL = "https://ilybtngf56.execute-api.us-east-2.amazonaws.com/dev"
+const API_URL = "https://gu1twri79c.execute-api.us-east-1.amazonaws.com/dev"
 
 export const checkAnswer = (payload: checkAnswerPayload) => {
   console.log("payload", payload);
