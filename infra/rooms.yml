@@ -34,7 +34,7 @@ Resources:
   BookingHistoryTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: booking_history
+      TableName: booking
       AttributeDefinitions:
         - AttributeName: bookingid
           AttributeType: S
@@ -56,9 +56,10 @@ Resources:
           import boto3
           import os
           import hashlib
+          import uuid
 
           sqs = boto3.client('sqs')
-          QUEUE_URL = os.environ['QUEUE_URL']
+          QUEUE_URL = os.environ.get('QUEUE_URL', 'https://sqs.us-east-1.amazonaws.com/123456789012/my-queue')
 
           def lambda_handler(event, context):
               try:
@@ -72,7 +73,10 @@ Resources:
                       if field not in booking_details:
                           raise ValueError(f"Missing required field: {field}")
 
+                  # Generate a unique booking_id
                   booking_id = str(uuid.uuid4())
+
+                  # Construct the booking details with generated booking_id
                   booking_details_with_id = {
                       'booking_id': booking_id,
                       'email': booking_details['email'],
@@ -86,31 +90,32 @@ Resources:
                       QueueUrl=QUEUE_URL,
                       MessageBody=json.dumps(booking_details_with_id),
                       MessageGroupId=message_group_id,
-                      MessageDeduplicationId: message_deduplication_id
+                      MessageDeduplicationId=message_deduplication_id
                   )
                   return {
                       'statusCode': 200,
-                      'isBase64Encoded': False,
+                        'isBase64Encoded': True,
                       'headers': {
-                          'Access-Control-Allow-Origin': '*',
-                          'Access-Control-Allow-Headers': '*',
-                          'Access-Control-Allow-Methods': 'OPTIONS,POST',
-                          'Access-Control-Allow-Credentials': True
+                      'Access-Control-Allow-Origin': '*',
+                      'Access-Control-Allow-Headers': '*',
+                      'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                      
+                      "Access-Control-Allow-Credentials": True
                       },
                       'body': json.dumps({
-                          'message': 'Booking details added to the queue',
-                          'messageId': response['MessageId']
+                      'message': 'Booking details added to the queue',
+                      'messageId': response['MessageId']
                       })
                   }
               except ValueError as ve:
                   return {
                       'statusCode': 400,
-                      'isBase64Encoded': False,
+                        'isBase64Encoded': True,
                       'headers': {
-                          'Access-Control-Allow-Origin': '*',
-                          'Access-Control-Allow-Headers': '*',
-                          'Access-Control-Allow-Methods': 'OPTIONS,POST',
-                          'Access-Control-Allow-Credentials': True
+                      'Access-Control-Allow-Origin': '*',
+                      'Access-Control-Allow-Headers': '*',
+                      'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                      "Access-Control-Allow-Credentials":  True
                       },
                       'body': json.dumps({
                           'error': str(ve)
@@ -119,18 +124,19 @@ Resources:
               except Exception as e:
                   return {
                       'statusCode': 500,
-                      'isBase64Encoded': False,
+                        'isBase64Encoded': True,
                       'headers': {
-                          'Access-Control-Allow-Origin': '*',
-                          'Access-Control-Allow-Headers': '*',
-                          'Access-Control-Allow-Methods': 'OPTIONS,POST',
-                          'Access-Control-Allow-Credentials': True
+                      'Access-Control-Allow-Origin': '*',
+                      'Access-Control-Allow-Headers': '*',
+                      'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                      "Access-Control-Allow-Credentials":  True   
                       },
                       'body': json.dumps({
                           'error': 'An error occurred',
                           'details': str(e)
                       })
                   }
+
       Runtime: python3.8
       Environment:
         Variables:
@@ -147,10 +153,13 @@ Resources:
           import json
           import boto3
           import os
+          from datetime import datetime
 
+          # Initialize boto3 clients
           dynamodb = boto3.resource('dynamodb')
           sns = boto3.client('sns')
 
+          # Environment variables
           ROOMS_TABLE_NAME = os.environ['ROOMS_TABLE_NAME']
           BOOKINGS_TABLE_NAME = os.environ['BOOKINGS_TABLE_NAME']
           SNS_TOPIC_ARN = os.environ['SNS_TOPIC_ARN']
@@ -161,12 +170,15 @@ Resources:
               
               for record in event['Records']:
                   try:
+                      # Parse message body from SQS event
                       message = json.loads(record['body'])
                       
+                      # Extract necessary information
                       booking_id = message['booking_id']
                       email = message['email']
                       room_id = message['room_id']
                       
+                      # Check room availability in DynamoDB
                       response = rooms_table.get_item(
                           Key={'room': room_id}
                       )
@@ -179,31 +191,40 @@ Resources:
                               })
                           }
                       
+                      # Update room availability to 'Not Available'
                       rooms_table.update_item(
                           Key={'room': room_id},
                           UpdateExpression="set Availability = :a",
                           ExpressionAttributeValues={':a': 'Not Available'}
                       )
                       
+                      # Get current date
+                      current_date = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+                      
+                      # Add booking information to the bookings table
                       bookings_table.put_item(
                           Item={
                               'bookingid': booking_id,
                               'email': email,
                               'room_id': room_id,
-                              'status': 'Confirmed'
+                              'status': 'Confirmed',
+                              'date': current_date
                           }
                       )
                       
+                      # Construct SNS message
                       subject = "Booking Confirmation"
                       body_text = (f"Dear Customer,\n\n"
-                                   f"Your booking for room {room_id} has been confirmed.\n"
-                                   f"Booking ID: {booking_id}\n\n"
-                                   f"Thank you for choosing our service.\n")
+                                  f"Your booking for room {room_id} has been confirmed.\n"
+                                  f"Booking ID: {booking_id}\n"
+                                  f"Date: {current_date}\n\n"
+                                  f"Thank you for choosing our service.\n")
                       
+                      # Publish to SNS
                       sns.publish(
                           TopicArn=SNS_TOPIC_ARN,
                           Message=body_text,
-                          Subject: subject,
+                          Subject=subject,
                           MessageAttributes={
                               'email': {
                                   'DataType': 'String',
@@ -227,6 +248,7 @@ Resources:
                   'statusCode': 200,
                   'body': json.dumps('Booking confirmation sent successfully.')
               }
+
       Runtime: python3.8
       Environment:
         Variables:
@@ -244,48 +266,98 @@ Resources:
         ZipFile: |
           import json
           import boto3
-          from botocore.exceptions import ClientError
+          import os
 
+          # Initialize the DynamoDB resource
           dynamodb = boto3.resource('dynamodb')
+
+          # Name of the DynamoDB table
           TABLE_NAME = 'rooms'
 
           def lambda_handler(event, context):
               try:
-                  agent = event['agent']
-                  address = event['address']
-                  amenities = event['amenities']
-                  availability = event['availability']
-                  beds = event['beds']
-                  room = event['room']
-                  price = event['price']
-              except KeyError as e:
+                  if 'body' not in event:
+                      raise ValueError("Missing 'body' in the event")
+
+                  room_details = json.loads(event['body'])
+
+                  required_fields = ['agent', 'address', 'amenities', 'availability', 'beds', 'room', 'price']
+                  for field in required_fields:
+                      if field not in room_details:
+                          raise ValueError(f"Missing required field: {field}")
+
+                  agent = room_details['agent']
+                  address = room_details['address']
+                  amenities = room_details['amenities']
+                  availability = room_details['availability']
+                  beds = room_details['beds']
+                  room = room_details['room']
+                  price = room_details['price']
+
+                  # Reference the DynamoDB table
+                  table = dynamodb.Table(TABLE_NAME)
+
+                  # Item to be inserted
+                  item = {
+                      'Agent': agent,
+                      'Address': address,
+                      'Amenities': amenities,
+                      'Availability': availability,
+                      'Beds': beds,
+                      'room': room,
+                      'Price': price
+                  }
+
+                  try:
+                      # Put item into DynamoDB table
+                      table.put_item(Item=item)
+                      return {
+                          'statusCode': 200,
+                          'headers': {
+                              'Access-Control-Allow-Origin': '*',
+                              'Access-Control-Allow-Headers': '*',
+                              'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                              'Access-Control-Allow-Credentials': True
+                          },
+                          'body': json.dumps(f'Room {room} added successfully.')
+                      }
+                  except ClientError as e:
+                      return {
+                          'statusCode': 500,
+                          'headers': {
+                              'Access-Control-Allow-Origin': '*',
+                              'Access-Control-Allow-Headers': '*',
+                              'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                              'Access-Control-Allow-Credentials': True
+                          },
+                          'body': json.dumps(f'Error adding room: {e.response["Error"]["Message"]}')
+                      }
+              except ValueError as ve:
                   return {
                       'statusCode': 400,
-                      'body': json.dumps(f'Missing parameter: {e}')
+                      'headers': {
+                          'Access-Control-Allow-Origin': '*',
+                          'Access-Control-Allow-Headers': '*',
+                          'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                          'Access-Control-Allow-Credentials': True
+                      },
+                      'body': json.dumps({
+                          'error': str(ve)
+                      })
                   }
-
-              table = dynamodb.Table(TABLE_NAME)
-
-              item = {
-                  'Agent': agent,
-                  'Address': address,
-                  'Amenities': amenities,
-                  'Availability': availability,
-                  'Beds': beds,
-                  'room': room,
-                  'Price': price
-              }
-
-              try:
-                  table.put_item(Item=item)
-                  return {
-                      'statusCode': 200,
-                      'body': json.dumps(f'Room {room} added successfully.')
-                  }
-              except ClientError as e:
+              except Exception as e:
                   return {
                       'statusCode': 500,
-                      'body': json.dumps(f'Error adding room: {e.response["Error"]["Message"]}')
+                      'headers': {
+                          'Access-Control-Allow-Origin': '*',
+                          'Access-Control-Allow-Headers': '*',
+                          'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                          'Access-Control-Allow-Credentials': True
+                      },
+                      'body': json.dumps({
+                          'error': 'An error occurred',
+                          'details': str(e)
+                      })
                   }
       Runtime: python3.8
       Environment:
@@ -304,49 +376,60 @@ Resources:
           import boto3
           from botocore.exceptions import ClientError
 
+          # Initialize the DynamoDB resource
           dynamodb = boto3.resource('dynamodb')
+
+          # Name of the DynamoDB table
           TABLE_NAME = 'rooms'
 
           def lambda_handler(event, context):
+              # Parse the body to get the input parameters
               try:
-                  room = event['room']
+                  body = json.loads(event['body'])
+                  room = body['room']
                   update_expression = []
                   expression_attribute_names = {}
                   expression_attribute_values = {}
                   
-                  if 'agent' in event:
+                  if 'agent' in body:
                       update_expression.append("#a = :agent")
                       expression_attribute_names['#a'] = "Agent"
-                      expression_attribute_values[':agent'] = event['agent']
+                      expression_attribute_values[':agent'] = body['agent']
                   
-                  if 'address' in event:
+                  if 'address' in body:
                       update_expression.append("#ad = :address")
                       expression_attribute_names['#ad'] = "Address"
-                      expression_attribute_values[':address'] = event['address']
+                      expression_attribute_values[':address'] = body['address']
                   
-                  if 'amenities' in event:
+                  if 'amenities' in body:
                       update_expression.append("#am = :amenities")
                       expression_attribute_names['#am'] = "Amenities"
-                      expression_attribute_values[':amenities'] = event['amenities']
+                      expression_attribute_values[':amenities'] = body['amenities']
                   
-                  if 'availability' in event:
+                  if 'availability' in body:
                       update_expression.append("#av = :availability")
                       expression_attribute_names['#av'] = "Availability"
-                      expression_attribute_values[':availability'] = event['availability']
+                      expression_attribute_values[':availability'] = body['availability']
                   
-                  if 'beds' in event:
+                  if 'beds' in body:
                       update_expression.append("#b = :beds")
                       expression_attribute_names['#b'] = "Beds"
-                      expression_attribute_values[':beds'] = event['beds']
+                      expression_attribute_values[':beds'] = body['beds']
                   
-                  if 'price' in event:
+                  if 'price' in body:
                       update_expression.append("#p = :price")
                       expression_attribute_names['#p'] = "Price"
-                      expression_attribute_values[':price'] = event['price']
+                      expression_attribute_values[':price'] = body['price']
                   
                   if not update_expression:
                       return {
                           'statusCode': 400,
+                          'headers': {
+                              'Access-Control-Allow-Origin': '*',
+                              'Access-Control-Allow-Headers': '*',
+                              'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                              'Access-Control-Allow-Credentials': True
+                          },
                           'body': json.dumps('No fields to update.')
                       }
 
@@ -354,14 +437,35 @@ Resources:
               except KeyError as e:
                   return {
                       'statusCode': 400,
+                      'headers': {
+                          'Access-Control-Allow-Origin': '*',
+                          'Access-Control-Allow-Headers': '*',
+                          'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                          'Access-Control-Allow-Credentials': True
+                      },
                       'body': json.dumps(f'Missing parameter: {e}')
                   }
+              except json.JSONDecodeError:
+                  return {
+                      'statusCode': 400,
+                      'headers': {
+                          'Access-Control-Allow-Origin': '*',
+                          'Access-Control-Allow-Headers': '*',
+                          'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                          'Access-Control-Allow-Credentials': True
+                      },
+                      'body': json.dumps('Invalid JSON in body.')
+                  }
 
+              # Reference the DynamoDB table
               table = dynamodb.Table(TABLE_NAME)
 
               try:
+                  # Update item in DynamoDB table
                   response = table.update_item(
-                      Key={'room': room},
+                      Key={
+                          'room': room
+                      },
                       UpdateExpression=update_expression,
                       ExpressionAttributeNames=expression_attribute_names,
                       ExpressionAttributeValues=expression_attribute_values,
@@ -370,16 +474,34 @@ Resources:
                   )
                   return {
                       'statusCode': 200,
+                      'headers': {
+                          'Access-Control-Allow-Origin': '*',
+                          'Access-Control-Allow-Headers': '*',
+                          'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                          'Access-Control-Allow-Credentials': True
+                      },
                       'body': json.dumps(f'Room {room} updated successfully. {response["Attributes"]}')
                   }
               except ClientError as e:
                   if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
                       return {
                           'statusCode': 404,
+                          'headers': {
+                              'Access-Control-Allow-Origin': '*',
+                              'Access-Control-Allow-Headers': '*',
+                              'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                              'Access-Control-Allow-Credentials': True
+                          },
                           'body': json.dumps(f'Room {room} not found.')
                       }
                   return {
                       'statusCode': 500,
+                      'headers': {
+                          'Access-Control-Allow-Origin': '*',
+                          'Access-Control-Allow-Headers': '*',
+                          'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                          'Access-Control-Allow-Credentials': True
+                      },
                       'body': json.dumps(f'Error updating room: {e.response["Error"]["Message"]}')
                   }
       Runtime: python3.8
@@ -399,40 +521,84 @@ Resources:
           import boto3
           from botocore.exceptions import ClientError
 
+          # Initialize the DynamoDB resource
           dynamodb = boto3.resource('dynamodb')
+
+          # Name of the DynamoDB table
           TABLE_NAME = 'rooms'
 
           def lambda_handler(event, context):
+              # Parse the body to get the input parameters
               try:
-                  agent = event['agent']
-                  room = event['room']
+                  body = json.loads(event['body'])
+                  agent = body['agent']
+                  room = body['room']
               except KeyError as e:
                   return {
                       'statusCode': 400,
+                      'headers': {
+                          'Access-Control-Allow-Origin': '*',
+                          'Access-Control-Allow-Headers': '*',
+                          'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                          "Access-Control-Allow-Credentials": True
+                      },
                       'body': json.dumps(f'Missing parameter: {e}')
                   }
+              except json.JSONDecodeError:
+                  return {
+                      'statusCode': 400,
+                      'headers': {
+                          'Access-Control-Allow-Origin': '*',
+                          'Access-Control-Allow-Headers': '*',
+                          'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                          "Access-Control-Allow-Credentials": True
+                      },
+                      'body': json.dumps('Invalid JSON in body.')
+                  }
 
+              # Reference the DynamoDB table
               table = dynamodb.Table(TABLE_NAME)
 
               try:
+                  # Delete item from DynamoDB table
                   response = table.delete_item(
-                      Key={'room': room}
+                      Key={
+                          'room': room
+                      }
                   )
                   if 'Attributes' in response:
                       return {
                           'statusCode': 200,
+                          'headers': {
+                              'Access-Control-Allow-Origin': '*',
+                              'Access-Control-Allow-Headers': '*',
+                              'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                              "Access-Control-Allow-Credentials": True
+                          },
                           'body': json.dumps(f'Room {room} removed successfully.')
                       }
                   else:
                       return {
                           'statusCode': 404,
+                          'headers': {
+                              'Access-Control-Allow-Origin': '*',
+                              'Access-Control-Allow-Headers': '*',
+                              'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                              "Access-Control-Allow-Credentials": True
+                          },
                           'body': json.dumps(f'Room {room} not found.')
                       }
               except ClientError as e:
                   return {
                       'statusCode': 500,
+                      'headers': {
+                          'Access-Control-Allow-Origin': '*',
+                          'Access-Control-Allow-Headers': '*',
+                          'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                          "Access-Control-Allow-Credentials": True
+                      },
                       'body': json.dumps(f'Error removing room: {e.response["Error"]["Message"]}')
-                  }
+          }
       Runtime: python3.8
       Environment:
         Variables:
@@ -450,19 +616,27 @@ Resources:
           import boto3
           import os
 
+          # Initialize the SNS client
           sns = boto3.client('sns')
+
+          # Environment variable for the SNS topic ARN
           SNS_TOPIC_ARN = os.environ['SNS_TOPIC_ARN']
 
           def lambda_handler(event, context):
               try:
+                  # Parse input parameters
                   email = event.get('email')
                   message = event.get('message')
                   
                   if not email or not message:
                       raise ValueError("Missing required parameters: 'email' and 'message'")
                   
-                  sns_message = {'default': message}
+                  # Construct the SNS message
+                  sns_message = {
+                      'default': message
+                  }
                   
+                  # Publish the message to the SNS topic
                   response = sns.publish(
                       TopicArn=SNS_TOPIC_ARN,
                       Message=json.dumps(sns_message),
@@ -490,6 +664,7 @@ Resources:
                           'messageId': response['MessageId']
                       })
                   }
+              
               except ValueError as ve:
                   return {
                       'statusCode': 400,
@@ -500,8 +675,11 @@ Resources:
                           'Access-Control-Allow-Methods': 'OPTIONS,POST',
                           'Access-Control-Allow-Credentials': True
                       },
-                      'body': json.dumps({'error': str(ve)})
+                      'body': json.dumps({
+                          'error': str(ve)
+                      })
                   }
+              
               except Exception as e:
                   return {
                       'statusCode': 500,
@@ -522,6 +700,363 @@ Resources:
         Variables:
           SNS_TOPIC_ARN: !Ref BookingNotificationsTopic
 
+  AvailableRoomsLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: AvailableRoomsLambda
+      Handler: index.lambda_handler
+      Role: arn:aws:iam::381492004483:role/LabRole
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+          from botocore.exceptions import ClientError
+          from decimal import Decimal
+
+          dynamodb = boto3.resource('dynamodb')
+          TABLE_NAME = 'rooms'
+
+          # Custom encoder to convert Decimal to float
+          class DecimalEncoder(json.JSONEncoder):
+              def default(self, obj):
+                  if isinstance(obj, Decimal):
+                      return float(obj)
+                  return super(DecimalEncoder, self).default(obj)
+
+          def lambda_handler(event, context):
+              table = dynamodb.Table(TABLE_NAME)
+              all_rooms = []
+              last_evaluated_key = None
+
+              try:
+                  while True:
+                      if last_evaluated_key:
+                          response = table.scan(
+                              ExclusiveStartKey=last_evaluated_key
+                          )
+                      else:
+                          response = table.scan()
+                      
+                      scanned_items = response.get('Items', [])
+                      print(f'Scanned {len(scanned_items)} items')
+                      all_rooms.extend(scanned_items)
+                      last_evaluated_key = response.get('LastEvaluatedKey')
+                      
+                      if not last_evaluated_key:
+                          break
+
+                  print(f'Total rooms: {len(all_rooms)}')
+
+                  return {
+                      'statusCode': 200,
+                      'headers': {
+                          'Access-Control-Allow-Origin': '*',
+                          'Access-Control-Allow-Headers': '*',
+                          'Access-Control-Allow-Methods': 'OPTIONS,GET',
+                          "Access-Control-Allow-Credentials": True
+                      },
+                      'body': json.dumps({'rooms': all_rooms}, cls=DecimalEncoder)
+                  }
+              except ClientError as e:
+                  print(f'ClientError: {e.response["Error"]["Message"]}')
+                  return {
+                      'statusCode': 500,
+                      'headers': {
+                          'Access-Control-Allow-Origin': '*',
+                          'Access-Control-Allow-Headers': '*',
+                          'Access-Control-Allow-Methods': 'OPTIONS,GET',
+                          "Access-Control-Allow-Credentials": True
+                      },
+                      'body': json.dumps(f'Error fetching rooms: {e.response["Error"]["Message"]}')
+                  }
+              except Exception as e:
+                  print(f'Exception: {str(e)}')
+                  return {
+                      'statusCode': 500,
+                      'headers': {
+                          'Access-Control-Allow-Origin': '*',
+                          'Access-Control-Allow-Headers': '*',
+                          'Access-Control-Allow-Methods': 'OPTIONS,GET',
+                          "Access-Control-Allow-Credentials": True
+                      },
+                      'body': json.dumps(f'Error: {str(e)}')
+                  }
+      Runtime: python3.8
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref RoomsTable
+
+  GetRoomLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: GetRoomLambda
+      Handler: index.lambda_handler
+      Role: arn:aws:iam::381492004483:role/LabRole
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+          from botocore.exceptions import ClientError
+          from decimal import Decimal
+
+          dynamodb = boto3.resource('dynamodb')
+          TABLE_NAME = 'rooms'
+
+          # Custom encoder to convert Decimal to float
+          class DecimalEncoder(json.JSONEncoder):
+              def default(self, obj):
+                  if isinstance(obj, Decimal):
+                      return float(obj)
+                  return super(DecimalEncoder, self).default(obj)
+
+          def lambda_handler(event, context):
+              try:
+                  body = json.loads(event['body'])
+                  agent = body['agent']
+              except (KeyError, json.JSONDecodeError):
+                  return {
+                      'statusCode': 400,
+                      'body': json.dumps('Missing or invalid required parameter: agent'),
+                      'headers': {
+                          'Access-Control-Allow-Origin': '*',
+                          'Access-Control-Allow-Headers': '*',
+                          'Access-Control-Allow-Methods': 'OPTIONS,GET',
+                          "Access-Control-Allow-Credentials": True
+                      }
+                  }
+
+              table = dynamodb.Table(TABLE_NAME)
+
+              try:
+                  response = table.scan(
+                      FilterExpression='#agent = :agent',
+                      ExpressionAttributeNames={'#agent': 'Agent'},
+                      ExpressionAttributeValues={':agent': agent}
+                  )
+                  rooms = response.get('Items', [])
+
+                  return {
+                      'statusCode': 200,
+                      'body': json.dumps({'rooms': rooms}, cls=DecimalEncoder),
+                      'headers': {
+                          'Access-Control-Allow-Origin': '*',
+                          'Access-Control-Allow-Headers': '*',
+                          'Access-Control-Allow-Methods': 'OPTIONS,GET',
+                          "Access-Control-Allow-Credentials": True
+                      }
+                  }
+              except ClientError as e:
+                  return {
+                      'statusCode': 500,
+                      'body': json.dumps(f'Error fetching rooms: {e.response["Error"]["Message"]}'),
+                      'headers': {
+                          'Access-Control-Allow-Origin': '*',
+                          'Access-Control-Allow-Headers': '*',
+                          'Access-Control-Allow-Methods': 'OPTIONS,GET',
+                          "Access-Control-Allow-Credentials": True
+                      }
+                  }
+      Runtime: python3.8
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref RoomsTable
+
+  RoomNumberLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: RoomNumberLambda
+      Handler: index.lambda_handler
+      Role: arn:aws:iam::381492004483:role/LabRole
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+          from botocore.exceptions import ClientError
+          from decimal import Decimal
+
+          dynamodb = boto3.resource('dynamodb')
+          TABLE_NAME = 'rooms'
+
+          # Custom encoder to convert Decimal to float
+          class DecimalEncoder(json.JSONEncoder):
+              def default(self, obj):
+                  if isinstance(obj, Decimal):
+                      return float(obj)
+                  return super(DecimalEncoder, self).default(obj)
+
+          def lambda_handler(event, context):
+              try:
+                  # Parse input parameters
+                  body = json.loads(event['body'])
+                  room_number = body['room']
+              except (KeyError, json.JSONDecodeError):
+                  return {
+                      'statusCode': 400,
+                      'headers': {
+                          'Access-Control-Allow-Origin': '*',
+                          'Access-Control-Allow-Headers': '*',
+                          'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                          "Access-Control-Allow-Credentials": True
+                      },
+                      'body': json.dumps('Missing or invalid input parameters.')
+                  }
+
+              # Reference the DynamoDB table
+              table = dynamodb.Table(TABLE_NAME)
+
+              try:
+                  # Get item from DynamoDB table
+                  response = table.get_item(
+                      Key={'room': room_number}
+                  )
+
+                  if 'Item' in response:
+                      return {
+                          'statusCode': 200,
+                          'headers': {
+                              'Access-Control-Allow-Origin': '*',
+                              'Access-Control-Allow-Headers': '*',
+                              'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                              "Access-Control-Allow-Credentials": True
+                          },
+                          'body': json.dumps(response['Item'], cls=DecimalEncoder)
+                      }
+                  else:
+                      return {
+                          'statusCode': 404,
+                          'headers': {
+                              'Access-Control-Allow-Origin': '*',
+                              'Access-Control-Allow-Headers': '*',
+                              'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                              "Access-Control-Allow-Credentials": True
+                          },
+                          'body': json.dumps(f'Room {room_number} not found.')
+                      }
+              except ClientError as e:
+                  return {
+                      'statusCode': 500,
+                      'headers': {
+                          'Access-Control-Allow-Origin': '*',
+                          'Access-Control-Allow-Headers': '*',
+                          'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                          "Access-Control-Allow-Credentials": True
+                      },
+                      'body': json.dumps(f'Error getting room: {e.response["Error"]["Message"]}')
+                  }
+      Runtime: python3.8
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref RoomsTable
+
+  GetUserBookingLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: GetUserBookingLambda
+      Handler: index.lambda_handler
+      Role: arn:aws:iam::381492004483:role/LabRole
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+          from botocore.exceptions import ClientError
+          from decimal import Decimal
+
+          dynamodb = boto3.resource('dynamodb')
+          TABLE_NAME = 'booking'
+
+          # Custom encoder to convert Decimal to float
+          class DecimalEncoder(json.JSONEncoder):
+              def default(self, obj):
+                  if isinstance(obj, Decimal):
+                      return float(obj)
+                  return super(DecimalEncoder, self).default(obj)
+
+          def lambda_handler(event, context):
+              try:
+                  # Parse input parameters
+                  body = json.loads(event['body'])
+                  email = body['email']
+              except (KeyError, json.JSONDecodeError):
+                  return {
+                      'statusCode': 400,
+                      'headers': {
+                          'Access-Control-Allow-Origin': '*',
+                          'Access-Control-Allow-Headers': '*',
+                          'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                          "Access-Control-Allow-Credentials": True
+                      },
+                      'body': json.dumps('Missing or invalid input parameters.')
+                  }
+
+              table = dynamodb.Table(TABLE_NAME)
+              bookings = []
+              last_evaluated_key = None
+
+              try:
+                  while True:
+                      if last_evaluated_key:
+                          response = table.scan(
+                              FilterExpression='#email = :email',
+                              ExpressionAttributeNames={'#email': 'email'},
+                              ExpressionAttributeValues={':email': email},
+                              ExclusiveStartKey=last_evaluated_key
+                          )
+                      else:
+                          response = table.scan(
+                              FilterExpression='#email = :email',
+                              ExpressionAttributeNames={'#email': 'email'},
+                              ExpressionAttributeValues={':email': email}
+                          )
+                      
+                      scanned_items = response.get('Items', [])
+                      print(f'Scanned {len(scanned_items)} items')
+                      bookings.extend(scanned_items)
+                      last_evaluated_key = response.get('LastEvaluatedKey')
+                      
+                      if not last_evaluated_key:
+                          break
+
+                  print(f'Total bookings for {email}: {len(bookings)}')
+
+                  return {
+                      'statusCode': 200,
+                      'headers': {
+                          'Access-Control-Allow-Origin': '*',
+                          'Access-Control-Allow-Headers': '*',
+                          'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                          "Access-Control-Allow-Credentials": True
+                      },
+                      'body': json.dumps({'bookings': bookings}, cls=DecimalEncoder)
+                  }
+              except ClientError as e:
+                  print(f'ClientError: {e.response["Error"]["Message"]}')
+                  return {
+                      'statusCode': 500,
+                      'headers': {
+                          'Access-Control-Allow-Origin': '*',
+                          'Access-Control-Allow-Headers': '*',
+                          'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                          "Access-Control-Allow-Credentials": True
+                      },
+                      'body': json.dumps(f'Error fetching bookings: {e.response["Error"]["Message"]}')
+                  }
+              except Exception as e:
+                  print(f'Exception: {str(e)}')
+                  return {
+                      'statusCode': 500,
+                      'headers': {
+                          'Access-Control-Allow-Origin': '*',
+                          'Access-Control-Allow-Headers': '*',
+                          'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                          "Access-Control-Allow-Credentials": True
+                      },
+                      'body': json.dumps(f'Error: {str(e)}')
+                  }
+      Runtime: python3.8
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref BookingHistoryTable
+
   # API Gateway
   ApiGateway:
     Type: AWS::ApiGateway::RestApi
@@ -536,11 +1071,18 @@ Resources:
       PathPart: auth
       RestApiId: !Ref ApiGateway
 
-  BookingResource:
+  BookingRequest:
     Type: AWS::ApiGateway::Resource
     Properties:
       ParentId: !GetAtt ApiGateway.RootResourceId
       PathPart: booking
+      RestApiId: !Ref ApiGateway
+
+  BookingVaidationResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt ApiGateway.RootResourceId
+      PathPart: booking-validate
       RestApiId: !Ref ApiGateway
 
   RoomResource:
@@ -550,13 +1092,62 @@ Resources:
       PathPart: room
       RestApiId: !Ref ApiGateway
 
+  RoomAddResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt ApiGateway.RootResourceId
+      PathPart: room-add
+      RestApiId: !Ref ApiGateway
+
+  RoomUpdateResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt ApiGateway.RootResourceId
+      PathPart: room-update
+      RestApiId: !Ref ApiGateway
+
+  RoomDeleteResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt ApiGateway.RootResourceId
+      PathPart: room-delete
+      RestApiId: !Ref ApiGateway
+
+  RoomGetResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt ApiGateway.RootResourceId
+      PathPart: room-get
+      RestApiId: !Ref ApiGateway
+
+  RoomNumberResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt ApiGateway.RootResourceId
+      PathPart: room-number
+      RestApiId: !Ref ApiGateway
+
+  AvailableRoomsResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt ApiGateway.RootResourceId
+      PathPart: rooms-available
+      RestApiId: !Ref ApiGateway
+
+  GetUserBookingResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt ApiGateway.RootResourceId
+      PathPart: booking-user
+      RestApiId: !Ref ApiGateway
+
   # Methods for /booking
   BookingMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       AuthorizationType: NONE
       HttpMethod: POST
-      ResourceId: !Ref BookingResource
+      ResourceId: !Ref BookingRequest
       RestApiId: !Ref ApiGateway
       Integration:
         IntegrationHttpMethod: POST
@@ -569,7 +1160,7 @@ Resources:
   #   Type: AWS::ApiGateway::Method
   #   Properties:
   #     Authorithod: OPTIONS
-  #     ResourceId: !Ref BookingResource
+  #     ResourceId: !Ref
   #     RestApiId: !RezationType: NONE
   #     HttpMef ApiGateway
   #     Integration:
@@ -590,13 +1181,27 @@ Resources:
   #           method.response.header.Access-Control-Allow-Methods: true
   #           method.response.header.Access-Control-Allow-Origin: true
 
+  ValidationMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      ResourceId: !Ref BookingVaidationResource
+      RestApiId: !Ref ApiGateway
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${BookingValidationLambdaArn}/invocations
+          - BookingValidationLambdaArn: !GetAtt BookingValidationLambda.Arn
+
   # Methods for /room
   AddRoomMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       AuthorizationType: NONE
       HttpMethod: POST
-      ResourceId: !Ref RoomResource
+      ResourceId: !Ref RoomAddResource
       RestApiId: !Ref ApiGateway
       Integration:
         IntegrationHttpMethod: POST
@@ -605,36 +1210,11 @@ Resources:
           - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AddRoomLambdaArn}/invocations
           - AddRoomLambdaArn: !GetAtt AddRoomLambda.Arn
 
-  # AddRoomMethodOptions:
-  #   Type: AWS::ApiGateway::Method
-  #   Properties:
-  #     AuthorizationType: NONE
-  #     HttpMethod: OPTIONS
-  #     ResourceId: !Ref RoomResource
-  #     RestApiId: !Ref ApiGateway
-  #     Integration:
-  #       IntegrationResponses:
-  #         - StatusCode: 200
-  #           ResponseParameters:
-  #             method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-  #             method.response.header.Access-Control-Allow-Origin: "'*'"
-  #             method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST'"
-  #       RequestTemplates:
-  #         application/json: '{"statusCode": 200}'
-  #       PassthroughBehavior: WHEN_NO_MATCH
-  #       Type: MOCK
-  #     MethodResponses:
-  #       - StatusCode: 200
-  #         ResponseParameters:
-  #           method.response.header.Access-Control-Allow-Headers: true
-  #           method.response.header.Access-Control-Allow-Methods: true
-  #           method.response.header.Access-Control-Allow-Origin: true
-
   UpdateRoomMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       AuthorizationType: NONE
-      HttpMethod: PUT
+      HttpMethod: POST
       ResourceId: !Ref RoomResource
       RestApiId: !Ref ApiGateway
       Integration:
@@ -644,37 +1224,12 @@ Resources:
           - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${UpdateRoomLambdaArn}/invocations
           - UpdateRoomLambdaArn: !GetAtt UpdateRoomLambda.Arn
 
-  # UpdateRoomMethodOptions:
-  #   Type: AWS::ApiGateway::Method
-  #   Properties:
-  #     AuthorizationType: NONE
-  #     HttpMethod: OPTIONS
-  #     ResourceId: !Ref RoomResource
-  #     RestApiId: !Ref ApiGateway
-  #     Integration:
-  #       IntegrationResponses:
-  #         - StatusCode: 200
-  #           ResponseParameters:
-  #             method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-  #             method.response.header.Access-Control-Allow-Origin: "'*'"
-  #             method.response.header.Access-Control-Allow-Methods: "'OPTIONS,PUT'"
-  #       RequestTemplates:
-  #         application/json: '{"statusCode": 200}'
-  #       PassthroughBehavior: WHEN_NO_MATCH
-  #       Type: MOCK
-  #     MethodResponses:
-  #       - StatusCode: 200
-  #         ResponseParameters:
-  #           method.response.header.Access-Control-Allow-Headers: true
-  #           method.response.header.Access-Control-Allow-Methods: true
-  #           method.response.header.Access-Control-Allow-Origin: true
-
   DeleteRoomMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       AuthorizationType: NONE
-      HttpMethod: DELETE
-      ResourceId: !Ref RoomResource
+      HttpMethod: POST
+      ResourceId: !Ref RoomUpdateResource
       RestApiId: !Ref ApiGateway
       Integration:
         IntegrationHttpMethod: DELETE
@@ -683,30 +1238,75 @@ Resources:
           - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DeleteRoomLambdaArn}/invocations
           - DeleteRoomLambdaArn: !GetAtt DeleteRoomLambda.Arn
 
-  # DeleteRoomMethodOptions:
-  #   Type: AWS::ApiGateway::Method
-  #   Properties:
-  #     AuthorizationType: NONE
-  #     HttpMethod: OPTIONS
-  #     ResourceId: !Ref RoomResource
-  #     RestApiId: !Ref ApiGateway
-  #     Integration:
-  #       IntegrationResponses:
-  #         - StatusCode: 200
-  #           ResponseParameters:
-  #             method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-  #             method.response.header.Access-Control-Allow-Origin: "'*'"
-  #             method.response.header.Access-Control-Allow-Methods: "'OPTIONS,DELETE'"
-  #       RequestTemplates:
-  #         application/json: '{"statusCode": 200}'
-  #       PassthroughBehavior: WHEN_NO_MATCH
-  #       Type: MOCK
-  #     MethodResponses:
-  #       - StatusCode: 200
-  #         ResponseParameters:
-  #           method.response.header.Access-Control-Allow-Headers: true
-  #           method.response.header.Access-Control-Allow-Methods: true
-  #           method.response.header.Access-Control-Allow-Origin: true
+  GetRoomMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      ResourceId: !Ref RoomGetResource
+      RestApiId: !Ref ApiGateway
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetRoomLambdaArn}/invocations
+          - GetRoomLambdaArn: !GetAtt GetRoomLambda.Arn
+
+  RoomNumberMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      ResourceId: !Ref RoomNumberResource
+      RestApiId: !Ref ApiGateway
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RoomNumberLambdaArn}/invocations
+          - RoomNumberLambdaArn: !GetAtt RoomNumberLambda.Arn
+
+  AvailableRoomsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: GET
+      ResourceId: !Ref AvailableRoomsResource
+      RestApiId: !Ref ApiGateway
+      Integration:
+        IntegrationHttpMethod: GET
+        Type: AWS_PROXY
+        Uri: !Sub
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AvailableRoomsLambdaArn}/invocations
+          - AvailableRoomsLambdaArn: !GetAtt AvailableRoomsLambda.Arn
+
+  GetUserBookingMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      ResourceId: !Ref GetUserBookingResource
+      RestApiId: !Ref ApiGateway
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetUserBookingLambdaArn}/invocations
+          - GetUserBookingLambdaArn: !GetAtt GetUserBookingLambda.Arn
+
+  EmailNotificationMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      ResourceId: !Ref AuthResource
+      RestApiId: !Ref ApiGateway
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${EmailNotificationLambdaArn}/invocations
+          - EmailNotificationLambdaArn: !GetAtt EmailNotificationLambda.Arn
 
 Outputs:
   ApiGatewayUrl:
@@ -739,3 +1339,15 @@ Outputs:
   EmailNotificationLambdaArn:
     Description: ARN of the Email Notification Lambda Function
     Value: !GetAtt EmailNotificationLambda.Arn
+  AvailableRoomsLambdaArn:
+    Description: ARN of the Available Rooms Lambda Function
+    Value: !GetAtt AvailableRoomsLambda.Arn
+  GetRoomLambdaArn:
+    Description: ARN of the Get Room Lambda Function
+    Value: !GetAtt GetRoomLambda.Arn
+  RoomNumberLambdaArn:
+    Description: ARN of the Room Number Lambda Function
+    Value: !GetAtt RoomNumberLambda.Arn
+  GetUserBookingLambdaArn:
+    Description: ARN of the Get User Booking Lambda Function
+    Value: !GetAtt GetUserBookingLambda.Arn
