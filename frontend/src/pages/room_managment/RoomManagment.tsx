@@ -16,9 +16,8 @@ const RoomManagment = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const { getSession } = useAuth();
   const [customerId, setCustomerId] = useState<number | undefined>(undefined);
-
+  var agentid = "";
   useEffect(() => {
-    var agentid = "";
     const fetchUserDetails = async () => {
       try {
         const session = await getSession();
@@ -36,7 +35,7 @@ const RoomManagment = () => {
     const fetchRooms = async () => {
       try {
         const response = await fetch(
-          "https://p2r4cn9vyj.execute-api.us-east-1.amazonaws.com/dev/room/get",
+          "https://v0mqolz1ub.execute-api.us-east-1.amazonaws.com/dev/rooms/get",
           {
             method: "POST",
             headers: {
@@ -77,14 +76,14 @@ const RoomManagment = () => {
       }
 
       const response = await fetch(
-        "https://p2r4cn9vyj.execute-api.us-east-1.amazonaws.com/dev/room/delete",
+        "https://v0mqolz1ub.execute-api.us-east-1.amazonaws.com/dev/rooms/delete",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            agent: "krishna",
+            agent: agentid,
             room: room,
           }),
         }

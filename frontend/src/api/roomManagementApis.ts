@@ -4,7 +4,7 @@ import { getRequest, postRequest } from "./axios";
 
 export const getRooms = async (): Promise<Room[]> => {
   const response = await getRequest<{ rooms: Room[] }>(
-    `https://p2r4cn9vyj.execute-api.us-east-1.amazonaws.com/dev/room/avaliable`
+    `https://v0mqolz1ub.execute-api.us-east-1.amazonaws.com/dev/rooms/allrooms`
   );
 
   const rooms: Room[] = response.data.rooms.map((room) => ({

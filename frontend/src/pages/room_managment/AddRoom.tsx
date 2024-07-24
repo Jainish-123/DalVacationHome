@@ -41,7 +41,7 @@ export const AddRoom = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "https://p2r4cn9vyj.execute-api.us-east-1.amazonaws.com/dev/room/add",
+        "https://v0mqolz1ub.execute-api.us-east-1.amazonaws.com/dev/rooms/add",
         room,
         {
           headers: {

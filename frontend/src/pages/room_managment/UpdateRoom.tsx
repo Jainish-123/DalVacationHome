@@ -28,7 +28,7 @@ export const UpdateRoom = () => {
 
     axios
       .post(
-        "https://p2r4cn9vyj.execute-api.us-east-1.amazonaws.com/dev/room/update",
+        "https://v0mqolz1ub.execute-api.us-east-1.amazonaws.com/dev/rooms/update",
         roomData.reduce((acc: any, [key, value]) => {
           acc[key.toLowerCase()] = value;
           return acc;
