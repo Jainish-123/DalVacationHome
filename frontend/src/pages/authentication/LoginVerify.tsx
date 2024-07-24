@@ -31,6 +31,7 @@ const LoginVerify: React.FC = () => {
         try {
             const response = await getUser(email);
             const role = response.data.role;
+            console.log(response.data.role)
             localStorage.setItem('role', role);
             setUserDetails(role);
             const randomId = response.data.queId[Math.floor(Math.random() * response.data.queId.length)];

@@ -65,7 +65,7 @@ export const checkAnswer = (payload: checkAnswerPayload) => {
 export const getOneQuestion = (id: number) => {
   console.log("id", id);
   return getRequest<Que>(
-    API_URL +`/auth/login/secque?id=1`
+    API_URL +`/auth/login/secque?id=${id}`
   );
 };
 

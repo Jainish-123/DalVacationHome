@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import "./App.css";
 import { Agent } from "./pages/agent/Agent";
 import { P404 } from "./pages/P404/P404";
@@ -25,34 +25,56 @@ import RoomDetails from "./pages/room_managment/RoomDetails";
 import BookingHistory from "./pages/bookings/BookingHistory";
 import UpdateRoom from "./pages/room_managment/UpdateRoom";
 import AnalyticsPage from "./pages/analytics/AnalyticsPage";
+import ProtectedRoute from "./utils/ProtectedRoutes";
+import { useAuth } from "./context/Auth";
 
 function App() {
+  const { status } = useAuth();
+
   return (
     <div className='App'>
       <Router>
         <AppNavbar />
         <Routes>
           <Route path='/' Component={Home}></Route>
-          <Route path='/agent' Component={Agent}></Route>
-          <Route path='/customer-queries' Component={CustomerQueries} />
+          <Route
+            path='/login'
+            element={status ? <Navigate to="/" replace /> : <Login />}
+          />
+          <Route
+            path='/signup'
+            element={status ? <Navigate to="/" replace /> : <SignUp />}
+          />
+          <Route
+            path='/verify'
+            element={status ? <Navigate to="/" replace /> : <VerifyEmail />}
+          />
+          <Route
+            path='/sec-ques'
+            element={status ? <Navigate to="/" replace /> : <SecurityQuestions />}
+          />
+          <Route
+            path='/login-verify'
+            element={status ? <Navigate to="/" replace /> : <LoginVerify />}
+          />
+          <Route
+            path='/forgotpass'
+            element={status ? <Navigate to="/" replace /> : <ForgotPassword />}
+          />
+          <Route path='/userprofile' element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+          <Route path='/room-managment' element={<ProtectedRoute><RoomManagment /></ProtectedRoute>} /> 
+          <Route path='/room-managment/add' element={<ProtectedRoute><AddRoom /></ProtectedRoute>} />
+          <Route path='/room-managment/update' element={<ProtectedRoute><UpdateRoom /></ProtectedRoute>} />
+          <Route path='/room/:roomId' element={<RoomDetails />} />
+          <Route path='/booking-history' element={<ProtectedRoute><BookingHistory /></ProtectedRoute>} />
+          <Route path='/analysis' element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
+          <Route path='/agent' element={<ProtectedRoute><Agent /></ProtectedRoute>} />
+          <Route path='/customer-queries' element={<ProtectedRoute><CustomerQueries /></ProtectedRoute>} />
           <Route
             path='/messaging/:customerId/:agentId/:bookingId'
-            Component={Messaging}
+            element={<ProtectedRoute><Messaging /></ProtectedRoute>}
           />
-          <Route path='/agent-queries' Component={AgentQueries} />
-          <Route path='/login' Component={Login}></Route>
-          <Route path='/signup' Component={SignUp}></Route>
-          <Route path='/verify' Component={VerifyEmail}></Route>
-          <Route path='/sec-ques' Component={SecurityQuestions}></Route>
-          <Route path='/login-verify' Component={LoginVerify}></Route>
-          <Route path='/forgotpass' Component={ForgotPassword}></Route>
-          <Route path='/userprofile' Component={UserProfile}></Route>
-          <Route path='/room-managment' Component={RoomManagment}></Route>
-          <Route path='/room-managment/add' Component={AddRoom}></Route>
-          <Route path='/room-managment/update' Component={UpdateRoom} />
-          <Route path='/room/:roomId' Component={RoomDetails} />
-          <Route path='/booking-history' Component={BookingHistory} />
-          <Route path='/analysis' Component={AnalyticsPage} />
+          <Route path='/agent-queries' element={<ProtectedRoute><AgentQueries /></ProtectedRoute>} />
           <Route path='*' Component={P404}></Route>
         </Routes>
       </Router>
