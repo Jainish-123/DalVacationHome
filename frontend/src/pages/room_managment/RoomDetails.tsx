@@ -93,7 +93,7 @@ const RoomDetails: React.FC = () => {
 
     try {
       const response = await fetch(
-        "https://p2r4cn9vyj.execute-api.us-east-1.amazonaws.com/dev/room",
+        "https://v0mqolz1ub.execute-api.us-east-1.amazonaws.com/dev/booking",
         {
           method: "POST",
           headers: {
@@ -219,9 +219,9 @@ const RoomDetails: React.FC = () => {
                                 | number
                                 | boolean
                                 | React.ReactElement<
-                                  any,
-                                  string | React.JSXElementConstructor<any>
-                                >
+                                    any,
+                                    string | React.JSXElementConstructor<any>
+                                  >
                                 | Iterable<React.ReactNode>
                                 | React.ReactPortal
                                 | null

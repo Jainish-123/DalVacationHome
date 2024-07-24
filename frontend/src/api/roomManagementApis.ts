@@ -23,7 +23,7 @@ export const getRooms = async (): Promise<Room[]> => {
 
 export const getRoomById = async (roomId: string): Promise<Room> => {
   const response = await postRequest<Room>(
-    "https://p2r4cn9vyj.execute-api.us-east-1.amazonaws.com/dev/room/get_room",
+    "https://v0mqolz1ub.execute-api.us-east-1.amazonaws.com/dev/rooms/roomnumber",
     {
       room: roomId,
     }
