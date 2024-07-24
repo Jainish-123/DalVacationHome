@@ -1,6 +1,8 @@
 const AWS = require("aws-sdk");
 const https = require("https");
 const dynamo = new AWS.DynamoDB.DocumentClient();
+const bookingDynamoDBTableName = "booking";
+const userDynamoDBTableName = "user";
 
 exports.handler = async (event) => {
   // console.log("Received event:", JSON.stringify(event, null, 2));
@@ -127,7 +129,7 @@ async function BookingInfo(event) {
   }
 
   const params = {
-    TableName: "booking",
+    TableName: bookingDynamoDBTableName,
     Key: { bookingRef: bookingReferenceCode },
   };
 
@@ -251,8 +253,25 @@ async function CustomerConcern(event) {
     return elicitMissingSlot(event, intentName, slots, sessionAttributes);
   }
 
+  const params = {
+    TableName: userDynamoDBTableName,
+    Key: { email: email },
+  };
+
+  let customerId = "";
+  try {
+    const data = await dynamo.get(params).promise();
+    const userDetails = data.Item;
+
+    console.log("user dynamo response: ", data);
+    customerId = userDetails.userId;
+    console.log("customerId: ", customerId);
+  } catch (error) {
+    console.log("error: ", error);
+  }
+
   const postData = JSON.stringify({
-    customerId: 1,
+    customerId: customerId,
     customerEmail: email,
     bookingId: BookingId,
     message: message,
