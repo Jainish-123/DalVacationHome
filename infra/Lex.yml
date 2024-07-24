@@ -401,6 +401,17 @@ Resources:
                 - Utterance: "My booking details are incorrect."
                 - Utterance: "I need help with an overcharge on my booking."
                 - Utterance: "Who can I talk to about a mistake in my booking?"
+                - Utterance: "I have a concern with my booking."
+                - Utterance: "Can someone help me with my reservation concern?"
+                - Utterance: "I have a concern about changing my room booking."
+                - Utterance: "There's a concern with my booking confirmation."
+                - Utterance: "I want to speak to customer support about a concern with my reservation."
+                - Utterance: "How do I address a concern regarding canceling my room booking?"
+                - Utterance: "I'm having a concern with booking a room."
+                - Utterance: "My booking details have a concern."
+                - Utterance: "I need help with a concern about an overcharge on my booking."
+                - Utterance: "Who can I talk to about a concern with my booking?"
+                
               SlotPriorities:
                 - Priority: 1
                   SlotName: Message

@@ -96,8 +96,8 @@ Resources:
         IntegrationResponses:
           - StatusCode: 200
             ResponseParameters:
-              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
-              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'"
               method.response.header.Access-Control-Allow-Origin: "'*'"
         PassthroughBehavior: WHEN_NO_MATCH
       MethodResponses:
@@ -125,13 +125,13 @@ Resources:
       ResourceId: !Ref StoreFeedbackResource
       RestApiId: !Ref ApiGatewayRestApi
       Integration:
-        IntegrationHttpMethod: 'OPTIONS'
+        # IntegrationHttpMethod: 'OPTIONS'
         Type: MOCK
         IntegrationResponses:
           - StatusCode: 200
             ResponseParameters:
-              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
-              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'"
               method.response.header.Access-Control-Allow-Origin: "'*'"
         PassthroughBehavior: WHEN_NO_MATCH
       MethodResponses:
@@ -152,19 +152,19 @@ Resources:
       ResourceId: !Ref StoreFeedbackResource
       RestApiId: !Ref ApiGatewayRestApi
       Integration:
-        Type: AWS
+        Type: AWS_PROXY
         IntegrationHttpMethod: POST
         Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreFeedbackWithSentimentLambdaFunction.Arn}/invocations'
-        IntegrationResponses:
-          - StatusCode: 200
-            ResponseParameters:
-              method.response.header.Access-Control-Allow-Origin: "'*'"
-            ResponseTemplates:
-              application/json: $input.json('$')
+        # IntegrationResponses:
+        #   - StatusCode: 200
+        #     ResponseParameters:
+        #       method.response.header.Access-Control-Allow-Origin: "'*'"
+        #     ResponseTemplates:
+        #       application/json: $input.json('$')
       MethodResponses:
         - StatusCode: 200
-          ResponseParameters: 
-            method.response.header.Access-Control-Allow-Origin: true
+          # ResponseParameters: 
+          #   method.response.header.Access-Control-Allow-Origin: true
           ResponseModels:
             application/json: "Empty"
     DependsOn: StoreFeedbackWithSentimentLambdaFunction
@@ -189,8 +189,8 @@ Resources:
         IntegrationResponses:
           - StatusCode: 200
             ResponseParameters:
-              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
-              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'"
               method.response.header.Access-Control-Allow-Origin: "'*'"
         PassthroughBehavior: WHEN_NO_MATCH
       MethodResponses:
@@ -223,8 +223,8 @@ Resources:
         IntegrationResponses:
           - StatusCode: 200
             ResponseParameters:
-              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
-              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'"
               method.response.header.Access-Control-Allow-Origin: "'*'"
         PassthroughBehavior: WHEN_NO_MATCH
       MethodResponses:
@@ -245,19 +245,19 @@ Resources:
       ResourceId: !Ref FetchFeedbackResource
       RestApiId: !Ref ApiGatewayRestApi
       Integration:
-        Type: AWS
+        Type: AWS_PROXY
         IntegrationHttpMethod: POST
         Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FetchFeedbackWithSentimentLambdaFunction.Arn}/invocations'
-        IntegrationResponses:
-          - StatusCode: 200
-            ResponseParameters:
-              method.response.header.Access-Control-Allow-Origin: "'*'"
-            ResponseTemplates:
-              application/json: $input.json('$')
+        # IntegrationResponses:
+        #   - StatusCode: 200
+        #     ResponseParameters:
+        #       method.response.header.Access-Control-Allow-Origin: "'*'"
+        #     ResponseTemplates:
+        #       application/json: $input.json('$')
       MethodResponses:
         - StatusCode: 200
-          ResponseParameters: 
-            method.response.header.Access-Control-Allow-Origin: true
+          # ResponseParameters: 
+          #   method.response.header.Access-Control-Allow-Origin: true
           ResponseModels:
             application/json: "Empty"
     DependsOn: StoreFeedbackWithSentimentLambdaFunction
