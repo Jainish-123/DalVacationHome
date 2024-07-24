@@ -4,11 +4,11 @@ import { useAuth } from "../context/Auth";
 import { useNavigate } from "react-router-dom";
 
 const AppNavbar: React.FC = () => {
-  const { logout, status, getSession, setStatus } = useAuth()
+  const { logout, status, getSession, setStatus } = useAuth();
   const [role, setRole] = React.useState<string>("");
   useEffect(() => {
     const temp = localStorage.getItem("role");
-    setRole(temp || "user")
+    setRole(temp || "user");
     getSession()
       .then((session) => {
         setStatus(true);
@@ -35,7 +35,6 @@ const AppNavbar: React.FC = () => {
             {status && (
               <>
                 <Nav.Link href='/userprofile'>Profile</Nav.Link>
-                <Nav.Link href='/post-query'>Post Query</Nav.Link>
                 <Nav.Link href='/customer-queries'>Customer Queries</Nav.Link>
                 <Nav.Link href='/booking-history'>Booking History</Nav.Link>
                 <Nav.Link href='/analysis'>Analytics</Nav.Link>

@@ -5,7 +5,6 @@ import { P404 } from "./pages/P404/P404";
 import { CustomerQueries } from "./pages/customer_queries";
 import { AgentQueries } from "./pages/agent_queries";
 import { Messaging } from "./pages/messaging";
-import { PostQuery } from "./pages/post_query";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Login from "./pages/authentication/Login";
@@ -29,36 +28,35 @@ import AnalyticsPage from "./pages/analytics/AnalyticsPage";
 
 function App() {
   return (
-    <div className="App">
+    <div className='App'>
       <Router>
         <AppNavbar />
         <Routes>
-          <Route path="/" Component={Home}></Route>
-          <Route path="/agent" Component={Agent}></Route>
-          <Route path="/customer-queries" Component={CustomerQueries} />
+          <Route path='/' Component={Home}></Route>
+          <Route path='/agent' Component={Agent}></Route>
+          <Route path='/customer-queries' Component={CustomerQueries} />
           <Route
-            path="/messaging/:customerId/:agentId/:bookingId"
+            path='/messaging/:customerId/:agentId/:bookingId'
             Component={Messaging}
           />
-          <Route path="/post-query" Component={PostQuery} />
-          <Route path="/agent-queries" Component={AgentQueries} />
-          <Route path="/login" Component={Login}></Route>
-          <Route path="/signup" Component={SignUp}></Route>
-          <Route path="/verify" Component={VerifyEmail}></Route>
-          <Route path="/sec-ques" Component={SecurityQuestions}></Route>
-          <Route path="/login-verify" Component={LoginVerify}></Route>
-          <Route path="/forgotpass" Component={ForgotPassword}></Route>
-          <Route path="/userprofile" Component={UserProfile}></Route>
-          <Route path="/room-managment" Component={RoomManagment}></Route>
-          <Route path="/room-managment/add" Component={AddRoom}></Route>
-          <Route path="/room-managment/update" Component={UpdateRoom} />
-          <Route path="/room/:roomId" Component={RoomDetails} />
-          <Route path="/booking-history" Component={BookingHistory} />
-          <Route path="/analysis" Component={AnalyticsPage} />
-          <Route path="*" Component={P404}></Route>
+          <Route path='/agent-queries' Component={AgentQueries} />
+          <Route path='/login' Component={Login}></Route>
+          <Route path='/signup' Component={SignUp}></Route>
+          <Route path='/verify' Component={VerifyEmail}></Route>
+          <Route path='/sec-ques' Component={SecurityQuestions}></Route>
+          <Route path='/login-verify' Component={LoginVerify}></Route>
+          <Route path='/forgotpass' Component={ForgotPassword}></Route>
+          <Route path='/userprofile' Component={UserProfile}></Route>
+          <Route path='/room-managment' Component={RoomManagment}></Route>
+          <Route path='/room-managment/add' Component={AddRoom}></Route>
+          <Route path='/room-managment/update' Component={UpdateRoom} />
+          <Route path='/room/:roomId' Component={RoomDetails} />
+          <Route path='/booking-history' Component={BookingHistory} />
+          <Route path='/analysis' Component={AnalyticsPage} />
+          <Route path='*' Component={P404}></Route>
         </Routes>
       </Router>
-      <ToastContainer position="top-right" theme="light" />
+      <ToastContainer position='top-right' theme='light' />
       <ChatbotLoader />
     </div>
   );
