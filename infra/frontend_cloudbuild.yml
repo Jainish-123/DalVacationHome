@@ -7,7 +7,7 @@
     - 'deploy'
     - 'serverless-frontend'
     - '--image'
-    - 'docker.io/tudu123/serverless-frontend:latest'
+    - '${_IMAGE_NAME}'
     - '--region'
     - 'us-central1'
     - '--port'
