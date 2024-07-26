@@ -110,7 +110,7 @@ app.post("/handle-customer-query", async (req, res) => {
 
   const response = await (
     await fetch(
-      "https://p2r4cn9vyj.execute-api.us-east-1.amazonaws.com/dev/booking/get_agent",
+      "https://v0mqolz1ub.execute-api.us-east-1.amazonaws.com/dev/booking/agent",
       {
         method: "post",
         body: JSON.stringify({
@@ -135,7 +135,7 @@ app.post("/handle-customer-query", async (req, res) => {
   };
 
   await fetch(
-    "https://cbtktu0xpb.execute-api.us-east-1.amazonaws.com/dev/email",
+    "https://v0mqolz1ub.execute-api.us-east-1.amazonaws.com/dev/notification",
     {
       method: "post",
       body: JSON.stringify({
